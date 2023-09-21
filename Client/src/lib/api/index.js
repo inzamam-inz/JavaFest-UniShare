@@ -1,49 +1,47 @@
-import { cookies } from "next/headers";
-
 function getDefaultHeaders(includeContent) {
-  const cookieStore = cookies();
-  const headers = {
-    "Client-Type": "Web",
-  };
+  const headers = {};
   if (includeContent) {
     headers["Content-type"] = "application/json";
   }
 
   let token = cookieStore.get("jwt_token")?.value;
-  if (token) {
-    headers["Authorization"] = `Bearer ${cookieStore.get("jwt_token")?.value}`;
-  }
+  // if (token) {
+  //   headers["Authorization"] = `Bearer ${cookieStore.get("jwt_token")?.value}`;
+  // }
 
   return headers;
 }
 
-async function apiClient(endpoint, options = {}) {
+async function apiClient(endpoint, options, method) {
   try {
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`;
-
+    const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
     // Add any necessary headers or configurations to the 'options' object
     const requestOptions = {
-      ...options,
       headers: {
         ...getDefaultHeaders(
           options.body && options.body instanceof FormData ? false : true
         ),
-        ...options.headers,
       },
     };
-
     // Execute the API request
-    const response = await fetch(url, requestOptions);
+    const response =
+      method === "GET" || method === "DELETE"
+        ? await fetch(url, { headers: requestOptions.headers, method: method })
+        : await fetch(url, {
+            ...requestOptions,
+            method,
+            body: JSON.stringify(options),
+          });
 
     if (!response.ok) {
       throw new Error(
         (await response.text()) || "An error occurred during the API request"
       );
     }
-
-    const data = await response.json();
-
-    return data;
+    if (method === "DELETE") {
+      return await response.text();
+    }
+    return await response.json();
   } catch (error) {
     throw error;
   }
@@ -60,31 +58,19 @@ class ApiClient {
   }
 
   async getAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, {
-      ...options,
-      method: "GET",
-    });
+    return await apiClient(endpoint, options, "GET");
   }
 
   async deleteAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, {
-      ...options,
-      method: "DELETE",
-    });
+    return await apiClient(endpoint, options, "DELETE");
   }
 
   async postAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, {
-      ...options,
-      method: "POST",
-    });
+    return await apiClient(endpoint, options, "POST");
   }
 
   async putAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, {
-      ...options,
-      method: "PUT",
-    });
+    return await apiClient(endpoint, options, "PUT");
   }
 }
 

@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Define the initial state for the user slice
 const initialState = {
-  isAuthenticated: false, // You can initialize this to false
+  isAuthenticated: true, // You can initialize this to false
   user: null, // You can initialize this to the default user data or null
 };
 

@@ -1,13 +1,5 @@
-
-import ProtectedRoute from "@/authGaurd/ProtectedRoutes";
-import React from "react";
-
 const Layout = ({ children }) => {
-  return (
-    <div>
-      <ProtectedRoute>{children}</ProtectedRoute>
-    </div>
-  );
+  return <div>{children}</div>;
 };
 
 export default Layout;
