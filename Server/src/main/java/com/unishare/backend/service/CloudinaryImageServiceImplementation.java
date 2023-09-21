@@ -12,6 +12,8 @@ import java.util.Map;
 public class CloudinaryImageServiceImplementation implements CloudinaryImageService {
     @Autowired
     private Cloudinary cloudinary;
+    @Autowired
+    private MailSendingService mailSendingService;
 
     @Override
     public Map imageUpload(MultipartFile file) {

@@ -4,6 +4,7 @@ import com.unishare.backend.DTO.AuthenticationRequest;
 import com.unishare.backend.DTO.AuthenticationResponse;
 import com.unishare.backend.DTO.RegisterRequest;
 import com.unishare.backend.service.AuthenticationService;
+import com.unishare.backend.service.MailSendingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,16 @@ import java.io.IOException;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final MailSendingService mailSendingService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(service.register(request));
+        boolean mailSendingStatus = mailSendingService.sendMail("bsse1113@iit.du.ac.bd", "OTP for UniShare", "Your OTP is 12345");
+        if (!mailSendingStatus) {
+            System.out.println("Sending email fail!");
+        }
+        AuthenticationResponse authenticationResponse = service.register(request);
+        return ResponseEntity.ok(authenticationResponse);
     }
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
