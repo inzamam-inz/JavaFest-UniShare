@@ -36,12 +36,18 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
+                .fullName(request.getFullName())
+                .university(request.getUniversity())
+                .idCardUrl(request.getIdCardUrl())
+                .profilePictureUrl(request.getProfilePictureUrl())
+                .address(request.getAddress())
+                .lat(request.getLat())
+                .lng(request.getLng())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
                 .build();
+        System.out.println(user);
         var savedUser = repository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);

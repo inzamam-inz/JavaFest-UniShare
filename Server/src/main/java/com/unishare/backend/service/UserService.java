@@ -22,14 +22,14 @@ public class UserService {
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
-                .map(user -> new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail()))
+                .map(user -> new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePictureUrl()))
                 .collect(Collectors.toList());
     }
 
     public UserResponse getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
-        return new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail());
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePictureUrl());
     }
 
 
@@ -37,13 +37,13 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
-        user.setFirstname(userRequest.getFirstname());
-        user.setLastname(userRequest.getLastname());
+        user.setFullName(userRequest.getFullName());
+        user.setProfilePictureUrl(userRequest.getProfilePictureUrl());
         // Update other user properties as needed
 
         user = userRepository.save(user);
 
-        return new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail());
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePictureUrl());
     }
 
     public void deleteUser(Integer id) {

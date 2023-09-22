@@ -81,7 +81,7 @@ public class BookingsService {
         response.setRentTo(booking.getRentTo());
         response.setConfirmationStatus(booking.getConfirmationStatus());
         response.setProductResponse(convertProductToResponse(booking.getProduct()));
-        response.setBorrower(new UserResponse(booking.getBorrower().getId(), booking.getBorrower().getFirstname(), booking.getBorrower().getLastname(), booking.getBorrower().getEmail()));
+        response.setBorrower(new UserResponse(booking.getBorrower().getId(), booking.getBorrower().getFullName(), booking.getBorrower().getEmail(), booking.getBorrower().getProfilePictureUrl()));
         return response;
     }
 
