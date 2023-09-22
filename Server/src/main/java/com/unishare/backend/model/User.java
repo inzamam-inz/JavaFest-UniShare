@@ -30,16 +30,21 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Integer id;
-    private String firstname;
-    private String lastname;
-    private String email;
+    private String idCardUrl;
+    private String profilePictureUrl;
+    private String fullName;
     private String password;
+    private String email;
+    private String address;
+    private Integer university;
+    private double lat;
+    private double lng;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
+    private List<Token> tokens = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner")
     private List<Product> products = new ArrayList<>();

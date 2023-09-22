@@ -18,6 +18,5 @@ public class Review {
     @Id
     @GeneratedValue
     private Integer id;
-
     private String name;
 }
