@@ -55,6 +55,18 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                               </div>
                             </div>
                           </td>
+                        ) : column === "status" ? (
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                item[column] === "available"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {item[column]}
+                            </span>
+                          </td>
                         ) : (
                           <td
                             key={column}
@@ -81,6 +93,14 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                                 <TrashIcon className="h-6 w-6 text-red-500" />
                               ) : action.type === "accept" ? (
                                 <CheckIcon className="h-6 w-6 text-green-500" />
+                              ) : action.type === "block" ? (
+                                <button className="text-red-500 outline outline-1 rounded-sm p-1 px-3 hover:bg-red-400 hover:text-white ">
+                                  Restrict
+                                </button>
+                              ) : action.type === "unblock" ? (
+                                <button className="text-green-500">
+                                  Unblock
+                                </button>
                               ) : (
                                 action.type === "reject" && (
                                   <XMarkIcon className="h-6 w-6 text-red-500" />

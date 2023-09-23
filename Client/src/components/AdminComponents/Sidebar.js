@@ -49,14 +49,19 @@ const Sidebar = () => {
     },
     {
       name: "Products",
-      href: "/dashboard/owner/booking-requests",
+      href: "/dashboard/admin/products",
       icon: FolderIcon,
       current: false,
     },
-    { name: "Users", href: "#", icon: UserCircleIcon, current: false },
+    {
+      name: "Users",
+      href: "/dashboard/admin/users",
+      icon: UserCircleIcon,
+      current: false,
+    },
     {
       name: "Universities",
-      href: "#",
+      href: "/dashboard/admin/universities",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -89,9 +94,12 @@ const Sidebar = () => {
     <>
       <div className="">
         {/* Sidebar component, swap this element with another sidebar if you like */}
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-700 px-6 pb-4">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4">
           <div className="">
-            <Link href="" className=" flex items-center">
+            <Link
+              href="/dashboard/storefront/home"
+              className=" flex items-center"
+            >
               <img
                 className="h-10 w-auto"
                 src="https://res.cloudinary.com/unishare/image/upload/v1694949615/Logo/Unishare_Logo.png"
@@ -115,8 +123,8 @@ const Sidebar = () => {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? "bg-gray-800 text-white"
-                            : "text-gray-400 hover:text-white hover:bg-gray-800",
+                            ? "bg-sky-800 text-white"
+                            : "text-gray-400 hover:text-white hover:bg-sky-800",
                           "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                         )}
                         onClick={(e) => handleClick(e, item)}
