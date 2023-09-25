@@ -1,6 +1,7 @@
 package com.unishare.backend.controller;
 
 import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.Request.TagRequest;
 import com.unishare.backend.DTO.Response.CategoryResponse;
 import com.unishare.backend.DTO.Response.TagResponse;
 import com.unishare.backend.model.Tag;
@@ -46,9 +47,9 @@ public class TagController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<TagResponse>> createTag(@RequestBody Tag tag) {
+    public ResponseEntity<ApiResponse<TagResponse>> createTag(@RequestBody TagRequest tag) {
         try {
-            TagResponse createdTagResponse = tagService.createTag(tag);
+            TagResponse createdTagResponse = tagService.createTag(tag.getTagName());
             return ResponseEntity.ok(new ApiResponse<>(createdTagResponse, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TagResponse {
+public class UniversityResponse {
     private Long id;
-    private String tagName;
+    private String universityName;
 }

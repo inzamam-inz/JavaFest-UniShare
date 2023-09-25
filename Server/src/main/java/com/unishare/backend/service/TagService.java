@@ -1,8 +1,10 @@
 package com.unishare.backend.service;
 
 import com.unishare.backend.DTO.Response.TagResponse;
+import com.unishare.backend.DTO.Response.UniversityResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.model.Tag;
+import com.unishare.backend.model.University;
 import com.unishare.backend.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +36,10 @@ public class TagService {
         return new TagResponse(tag.getId(), tag.getTagName());
     }
 
-    public TagResponse createTag(Tag tag) {
-        //return //tagRepository.save(tag);
+    public TagResponse createTag(String tagName) {
+        Tag tag = new Tag();
+        tag.setTagName(tagName);
+
         tag = tagRepository.save(tag);
         return new TagResponse(tag.getId(), tag.getTagName());
     }
