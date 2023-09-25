@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingsResponse {
-    private Integer id;
+    private Long id;
     private Date rentFrom;
     private Date rentTo;
     private String confirmationStatus;

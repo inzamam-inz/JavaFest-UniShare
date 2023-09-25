@@ -1,5 +1,6 @@
 package com.unishare.backend.controller;
 
+import com.unishare.backend.DTO.ApiResponse.ApiResponse;
 import com.unishare.backend.DTO.Response.CategoryResponse;
 import com.unishare.backend.model.Category;
 import com.unishare.backend.service.CategoryService;
@@ -21,32 +22,53 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping()
-    public List<CategoryResponse> getAllCategories() {
-        return categoryService.getAllCategories();
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories() {
+        try {
+            List<CategoryResponse> categoryResponseList = categoryService.getAllCategories();
+            return ResponseEntity.ok(new ApiResponse<>(categoryResponseList, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Integer id) {
-        CategoryResponse category = categoryService.getCategoryById(id);
-        return ResponseEntity.ok(category);
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id) {
+        try {
+            CategoryResponse category = categoryService.getCategoryById(id);
+            return ResponseEntity.ok(new ApiResponse<>(category, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
-    @PostMapping()
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody Category category) {
-        CategoryResponse createdCategory = categoryService.createCategory(category);
-        return ResponseEntity.ok(createdCategory);
+    @PostMapping
+    public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@RequestBody Category category) {
+        try {
+            CategoryResponse createdCategory = categoryService.createCategory(category);
+            return ResponseEntity.ok(new ApiResponse<>(createdCategory, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable Integer id, @RequestBody Category updatedCategory) {
-        CategoryResponse updated = categoryService.updateCategory(id, updatedCategory);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
+        try {
+            CategoryResponse updated = categoryService.updateCategory(id, updatedCategory);
+            return ResponseEntity.ok(new ApiResponse<>(updated, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<String>> deleteCategory(@PathVariable Long id) {
+        try {
+            categoryService.deleteCategory(id);
+            return ResponseEntity.ok(new ApiResponse<>("Successfully deleted", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 }

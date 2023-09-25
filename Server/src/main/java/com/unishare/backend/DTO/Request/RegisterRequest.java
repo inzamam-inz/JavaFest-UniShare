@@ -39,7 +39,7 @@ public class RegisterRequest {
     private double lng;
     @NotNull
     @NotEmpty
-    private Integer university;
+    private Long university;
     @NotNull
     @NotEmpty
     private Role role;

@@ -1,4 +1,4 @@
-package com.unishare.backend.DTO;
+package com.unishare.backend.DTO.Request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MLServiceTwoImageRequest {
-    private String imageUrlOne;
-    private String imageUrlTwo;
+public class TagRequest {
+    private String tagName;
 }

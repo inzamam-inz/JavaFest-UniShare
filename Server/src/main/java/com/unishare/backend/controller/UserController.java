@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
         try {
             UserResponse user = userService.getUserById(id);
             return ResponseEntity.ok(new ApiResponse<>(user, null));
@@ -48,13 +48,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/block-user/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> blockUser(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<UserResponse>> blockUser(@PathVariable Long id) {
         try {
             UserResponse updatedUser = userService.userBlockStatusUpdate(id, true);
             return ResponseEntity.ok(new ApiResponse<>(updatedUser, null));
@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @PutMapping("/unblock-user/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> unBlockUser(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<UserResponse>> unBlockUser(@PathVariable Long id) {
         try {
             UserResponse updatedUser = userService.userBlockStatusUpdate(id, false);
             return ResponseEntity.ok(new ApiResponse<>(updatedUser, null));

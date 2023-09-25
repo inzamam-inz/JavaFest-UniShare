@@ -20,7 +20,7 @@ public class UserService {
     }
 
     public UserResponse makeUserResponse(User user) {
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePicture(), user.isVerified(), user.isBlocked());
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePicture(), user.getIsVerified(), user.getIsBlocked());
     }
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -29,7 +29,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse getUserById(Integer id) {
+    public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
         return makeUserResponse(user);
@@ -46,17 +46,17 @@ public class UserService {
         return makeUserResponse(user);
     }
 
-    public UserResponse userBlockStatusUpdate(Integer id, boolean isBlocked) {
+    public UserResponse userBlockStatusUpdate(Long id, boolean isBlocked) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
-        user.setBlocked(isBlocked);
+        user.setIsBlocked(isBlocked);
         user = userRepository.save(user);
 
         return makeUserResponse(user);
     }
 
-    public void deleteUser(Integer id) {
+    public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
