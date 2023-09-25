@@ -23,6 +23,8 @@ const AuthService = {
   deleteMe: () => {
     return api.deleteAsync("/auth/me");
   },
+
+  
 };
 
 export default AuthService;

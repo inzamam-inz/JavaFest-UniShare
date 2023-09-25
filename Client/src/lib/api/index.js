@@ -41,7 +41,7 @@ async function apiClient(endpoint, options, method) {
     if (method === "DELETE") {
       return await response.text();
     }
-    return await response.json();
+    return await response.successResponse.json();
   } catch (error) {
     throw error;
   }

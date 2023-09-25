@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Input, IconButton, Card, CardMedia } from '@mui/material';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import { Card, CardMedia, IconButton, Input } from "@mui/material";
 
 const ImageUpload = ({ label, onImageChange, currentImage }) => {
   const handleImageUpload = (event) => {
@@ -21,30 +20,38 @@ const ImageUpload = ({ label, onImageChange, currentImage }) => {
           />
         </Card>
       ) : (
-        // Display the upload button
-        <>
-          <label htmlFor={`upload${label}`}>
-            Upload {label} (Required)
-          </label>
-          <Input
-            accept="image/*"
-            id={`upload${label}`}
-            type="file"
-            style={{ display: 'none' }}
-            onChange={handleImageUpload}
-            required
-          />
-          <label htmlFor={`upload${label}`}>
-            <IconButton
-              color="primary"
-              aria-label={`upload ${label}`}
-              component="span"
-            >
-              <PhotoCameraIcon />
-            </IconButton>
-          </label>
-        </>
+        // Display the default image
+        <div className="flex justify-center ">
+          <Card sx={{ maxWidth: 250 }} className=" ">
+            <CardMedia
+              component="img"
+              alt={`${label} Preview`}
+              height="100"
+              image="https://via.placeholder.com/150"
+            />
+          </Card>
+        </div>
       )}
+      <div className=" text-center">
+        <label htmlFor={`upload${label}`}>Upload {label} (Required)</label>
+        <Input
+          accept="image/*"
+          id={`upload${label}`}
+          type="file"
+          style={{ display: "none" }}
+          onChange={handleImageUpload}
+          required
+        />
+        <label htmlFor={`upload${label}`}>
+          <IconButton
+            color="primary"
+            aria-label={`upload ${label}`}
+            component="span"
+          >
+            <PhotoCameraIcon className=" text-black" />
+          </IconButton>
+        </label>
+      </div>
     </div>
   );
 };

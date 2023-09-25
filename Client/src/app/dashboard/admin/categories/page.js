@@ -1,10 +1,11 @@
 "use client";
 import CommonTable from "@/components/GlobalComponents/CommonTable";
+import Pagination from "@/components/GlobalComponents/Pagination";
 import PageHeader from "@/components/OwnerComponents/PageHeader";
 import CategoryService from "@/lib/services/categoryService";
 import { setCategory } from "@/store/Slices/categorySlice";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -12,11 +13,34 @@ const Page = () => {
   const { category } = useSelector((state) => state.category);
   const router = useRouter();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(10);
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = category?.slice(indexOfFirstPost, indexOfLastPost);
+
+  const paginateFront = () => {
+    const totalPages = Math.ceil(category?.length / postsPerPage);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const paginateBack = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   useEffect(() => {
     if (!category) {
+      setLoading(true);
       CategoryService.getAll()
         .then((res) => {
           dispatch(setCategory(res));
+          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
@@ -81,6 +105,13 @@ const Page = () => {
             },
           },
         ]}
+      />
+      <Pagination
+        postsPerPage={postsPerPage}
+        totalPosts={category?.length}
+        paginateBack={paginateBack}
+        paginateFront={paginateFront}
+        currentPage={currentPage}
       />
     </div>
   );
