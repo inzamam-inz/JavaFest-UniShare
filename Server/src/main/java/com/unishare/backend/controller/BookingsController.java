@@ -1,13 +1,14 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.BookingsRequest;
-import com.unishare.backend.DTO.BookingsResponse;
+import com.unishare.backend.DTO.Request.BookingsRequest;
+import com.unishare.backend.DTO.Response.BookingsResponse;
 import com.unishare.backend.service.BookingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+@CrossOrigin(origins = "*")
 
 @RestController
 @RequestMapping("/api/bookings")

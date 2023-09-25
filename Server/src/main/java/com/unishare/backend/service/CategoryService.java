@@ -1,6 +1,6 @@
 package com.unishare.backend.service;
 
-import com.unishare.backend.DTO.CategoryResponse;
+import com.unishare.backend.DTO.Response.CategoryResponse;
 import com.unishare.backend.exceptionHandlers.CategoryNotFoundException;
 import com.unishare.backend.model.Category;
 import com.unishare.backend.repository.CategoryRepository;

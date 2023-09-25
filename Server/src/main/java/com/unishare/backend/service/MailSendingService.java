@@ -1,5 +1,6 @@
 package com.unishare.backend.service;
 
+import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,18 +11,35 @@ public class MailSendingService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public boolean sendMail(String toMail, String subject, String body) {
+    public void sendMail(String toMail, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("roughuse8633@gmail.com");
+        message.setFrom("no-reply@unishare.com");
         message.setTo(toMail);
         message.setText(body);
         message.setSubject(subject);
 
+        this.javaMailSender.send(message);
+    }
+
+    public void sendOTPMail(String toMail, String OTP) {
+        String subject = "UniShare: Your OTP to Activate Your Account";
+        String body = "Thank you for choosing UniShare! Please use the following One-Time Password (OTP) to complete your sign-up process. The OTP is " + OTP;
+
         try {
-            this.javaMailSender.send(message);
-            return true;
+            sendMail(toMail, subject, body);
         } catch (Exception exception) {
-            return false;
+            throw new ErrorMessageException("Ops, Sending OTP is failed. Try again.");
+        }
+    }
+
+    public void sendResetTokenMail(String toMail, String passwordResetToken) {
+        String subject = "UniShare: Your Token to Reset Your Password";
+        String body = "Thank you! Please use the following Token to reset your password. Your Password Reset Token is " + passwordResetToken;
+
+        try {
+            sendMail(toMail, subject, body);
+        } catch (Exception exception) {
+            throw new ErrorMessageException("Ops, Sending OTP is failed. Try again.");
         }
     }
 }

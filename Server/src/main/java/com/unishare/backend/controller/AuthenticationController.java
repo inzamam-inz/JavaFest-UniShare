@@ -1,18 +1,28 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.AuthenticationRequest;
-import com.unishare.backend.DTO.AuthenticationResponse;
-import com.unishare.backend.DTO.RegisterRequest;
+import com.cloudinary.Api;
+import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.Request.*;
+import com.unishare.backend.DTO.Response.AuthenticationResponse;
+import com.unishare.backend.exceptionHandlers.ErrorMessageException;
+import com.unishare.backend.model.User;
+import com.unishare.backend.repository.UserRepository;
 import com.unishare.backend.service.AuthenticationService;
 import com.unishare.backend.service.MailSendingService;
+import com.unishare.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+@CrossOrigin(origins = "*")
+@Validated
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -20,21 +30,32 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
     private final MailSendingService mailSendingService;
+    private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        boolean mailSendingStatus = mailSendingService.sendMail("bsse1113@iit.du.ac.bd", "OTP for UniShare", "Your OTP is 12345");
-        if (!mailSendingStatus) {
-            System.out.println("Sending email fail!");
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
+        String OTP = service.generateHashedVerificationCode();
+
+        try {
+            service.register(request, OTP);
+            mailSendingService.sendOTPMail(request.getEmail(), OTP);
+            return ResponseEntity.ok(new ApiResponse<>("Congratulations! Your registration has completed.", null));
+        } catch (ErrorMessageException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
-        AuthenticationResponse authenticationResponse = service.register(request);
-        return ResponseEntity.ok(authenticationResponse);
     }
+
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(
             @RequestBody AuthenticationRequest request
     ) {
-        return ResponseEntity.ok(service.authenticate(request));
+        try {
+            return ResponseEntity.ok(new ApiResponse<>(service.authenticate(request), null));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @PostMapping("/refresh-token")
@@ -45,6 +66,37 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
 
+    @PostMapping("/verification")
+    public ResponseEntity<ApiResponse<String>> userVerification(@RequestBody UserVerificationRequest userVerificationRequest) {
+        try {
+            service.verification(userVerificationRequest);
+            return ResponseEntity.ok(new ApiResponse<>("Account is successfully verified.", null));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
 
+    @PostMapping("/send-password-reset-token")
+    public ResponseEntity<ApiResponse<String>> sendPasswordResetToken(@RequestBody SendResetTokenRequest sendResetTokenRequest) {
+        String resetPasswordToken = service.generateHashedVerificationCode();
+        try {
+            service.sendResetToken(sendResetTokenRequest, resetPasswordToken);
+            return ResponseEntity.ok(new ApiResponse<>("Token has sent to your email.", null));
+        } catch (ErrorMessageException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/password-reset")
+    public ResponseEntity<ApiResponse<String>> passwordReset(@RequestBody PasswordResetRequest passwordResetRequest) {
+        try {
+            service.resetPassword(passwordResetRequest);
+            return ResponseEntity.ok(new ApiResponse<>("Password is successfully reset.", null));
+        }
+            catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
 }
 

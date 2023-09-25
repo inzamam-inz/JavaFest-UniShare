@@ -1,7 +1,7 @@
 package com.unishare.backend.service;
 
-import com.unishare.backend.DTO.UserRequest;
-import com.unishare.backend.DTO.UserResponse;
+import com.unishare.backend.DTO.Request.UserUpdateRequest;
+import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.User;
 import com.unishare.backend.repository.UserRepository;
@@ -19,37 +19,47 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public UserResponse makeUserResponse(User user) {
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePicture(), user.isVerified(), user.isBlocked());
+    }
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
-                .map(user -> new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePictureUrl()))
+                .map(this::makeUserResponse)
                 .collect(Collectors.toList());
     }
 
     public UserResponse getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePictureUrl());
+        return makeUserResponse(user);
     }
 
+    public UserResponse userProfileUpdate(UserUpdateRequest userUpdateRequest) {
+        User user = userRepository.findByEmail(userUpdateRequest.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("Haven't any account with this email"));
 
-    public UserResponse updateUser(Integer id, UserRequest userRequest) {
+        user.setFullName(userUpdateRequest.getFullName());
+        user.setProfilePicture(userUpdateRequest.getProfilePicture());
+        user = userRepository.save(user);
+
+        return makeUserResponse(user);
+    }
+
+    public UserResponse userBlockStatusUpdate(Integer id, boolean isBlocked) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
-        user.setFullName(userRequest.getFullName());
-        user.setProfilePictureUrl(userRequest.getProfilePictureUrl());
-        // Update other user properties as needed
-
+        user.setBlocked(isBlocked);
         user = userRepository.save(user);
 
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePictureUrl());
+        return makeUserResponse(user);
     }
 
     public void deleteUser(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
-        // You may want to handle cascading deletes or other related actions here
+
         userRepository.delete(user);
     }
 

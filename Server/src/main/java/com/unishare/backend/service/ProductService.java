@@ -1,7 +1,7 @@
 package com.unishare.backend.service;
 
-import com.unishare.backend.DTO.ProductRequest;
-import com.unishare.backend.DTO.ProductResponse;
+import com.unishare.backend.DTO.Request.ProductRequest;
+import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.exceptionHandlers.CategoryNotFoundException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
@@ -13,7 +13,6 @@ import com.unishare.backend.repository.BookingsRepository;
 import com.unishare.backend.repository.CategoryRepository;
 import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

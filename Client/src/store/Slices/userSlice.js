@@ -2,8 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Define the initial state for the user slice
 const initialState = {
-  isAuthenticated: false, // You can initialize this to false
-  user: null, // You can initialize this to the default user data or null
+  isAuthenticated: true, // You can initialize this to false
+  currentUser: null,
+  users: null,
 };
 
 // Create the user slice
@@ -11,24 +12,28 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    // Action to set the user data
+    // Define reducers for updating the state
     setUser: (state, action) => {
-      state.user = action.payload;
+      state.currentUser = action.payload;
+      state.isAuthenticated = true;
     },
-
-    // Action to update the user data
     updateUser: (state, action) => {
-      // Assuming action.payload contains the updated user data
-      state.user = action.payload;
+      state.currentUser = action.payload;
     },
-
-    // Action to delete the user data
-    deleteUser: (state) => {
-      state.user = null;
+    deleteUser: (state, action) => {
+      state.currentUser = null;
+      state.isAuthenticated = false;
+    },
+    setUsers: (state, action) => {
+      state.users = action.payload;
+    },
+    deleteUsers: (state, action) => {
+      state.users = [];
     },
   },
 });
 
 // Export the actions and reducer
-export const { setUser, updateUser, deleteUser } = userSlice.actions;
+export const { setUser, updateUser, deleteUser, setUsers, deleteUsers } =
+  userSlice.actions;
 export default userSlice.reducer;

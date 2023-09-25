@@ -1,9 +1,9 @@
 package com.unishare.backend.service;
 
-import com.unishare.backend.DTO.BookingsRequest;
-import com.unishare.backend.DTO.BookingsResponse;
-import com.unishare.backend.DTO.ProductResponse;
-import com.unishare.backend.DTO.UserResponse;
+import com.unishare.backend.DTO.Request.BookingsRequest;
+import com.unishare.backend.DTO.Response.BookingsResponse;
+import com.unishare.backend.DTO.Response.ProductResponse;
+import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Bookings;
@@ -81,7 +81,7 @@ public class BookingsService {
         response.setRentTo(booking.getRentTo());
         response.setConfirmationStatus(booking.getConfirmationStatus());
         response.setProductResponse(convertProductToResponse(booking.getProduct()));
-        response.setBorrower(new UserResponse(booking.getBorrower().getId(), booking.getBorrower().getFullName(), booking.getBorrower().getEmail(), booking.getBorrower().getProfilePictureUrl()));
+        response.setBorrower(new UserResponse(booking.getBorrower().getId(), booking.getBorrower().getFullName(), booking.getBorrower().getEmail(), booking.getBorrower().getProfilePicture(), booking.getBorrower().isVerified(), booking.getBorrower().isBlocked()));
         return response;
     }
 

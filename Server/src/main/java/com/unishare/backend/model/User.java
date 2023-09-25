@@ -11,10 +11,8 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,15 +28,20 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Integer id;
-    private String idCardUrl;
-    private String profilePictureUrl;
+    private String idCard;
+    private String profilePicture;
     private String fullName;
     private String password;
     private String email;
     private String address;
+    private String OTP;
+    private String passwordResetToken;
     private Integer university;
     private double lat;
     private double lng;
+    private boolean isVerified;
+    private boolean isBlocked;
+
 
     @Enumerated(EnumType.STRING)
     private Role role;

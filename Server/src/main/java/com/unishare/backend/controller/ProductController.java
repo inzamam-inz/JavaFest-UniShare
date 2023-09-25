@@ -1,20 +1,16 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ProductRequest;
-import com.unishare.backend.DTO.ProductResponse;
-import com.unishare.backend.model.Category;
-import com.unishare.backend.model.Product;
-import com.unishare.backend.model.User;
-import com.unishare.backend.repository.UserRepository;
+import com.unishare.backend.DTO.Request.ProductRequest;
+import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.service.ProductService;
-import com.unishare.backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
+@CrossOrigin(origins = "*")
 
 @RestController
 @RequestMapping("/api/products")

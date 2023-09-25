@@ -1,6 +1,6 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.CategoryResponse;
+import com.unishare.backend.DTO.Response.CategoryResponse;
 import com.unishare.backend.model.Category;
 import com.unishare.backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
