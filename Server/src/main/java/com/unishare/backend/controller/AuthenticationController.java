@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -31,8 +32,9 @@ public class AuthenticationController {
     private final AuthenticationService service;
     private final MailSendingService mailSendingService;
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
+
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
         String OTP = service.generateHashedVerificationCode();
