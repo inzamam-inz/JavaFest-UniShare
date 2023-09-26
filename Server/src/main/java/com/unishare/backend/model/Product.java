@@ -3,15 +3,14 @@ package com.unishare.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,27 +18,46 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
     private String description;
-    private String baseprice;
+    private Double basePrice;
     private String status;
+    private boolean isRestricted;
+
+    @ManyToOne
+    @JoinColumn(name = "ownerId")
+    private User owner;
+
+    @ManyToOne
+    @JoinColumn(name = "categoryId")
+    private Category category;
 
     @JsonIgnore
     @OneToMany(mappedBy = "product")
-    private List<Bookings> bookings = new ArrayList<>();;
+    private List<Booking> bookings = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_tags",
+            joinColumns = @JoinColumn(name = "productID"),
+            inverseJoinColumns = @JoinColumn(name = "tagID")
+    )
+    private List<Tag> tags = new ArrayList<>();
+
 
 //    @OneToMany(mappedBy = "product")
-//    private List<Tags> tags;
+//    private List<Review> reviews = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    public User owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    public Category category;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "owner_id")
+//    public User owner;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "category_id")
+//    public Category category;
 
 }

@@ -15,7 +15,7 @@ public class BookingsRequest {
     private Date rentFrom;
     private Date rentTo;
     private String confirmationStatus;
-    private Integer productId;
-    private Integer borrowerId;
+    private Long productId;
+    private Long borrowerId;
 
 }

@@ -23,33 +23,33 @@ public class CategoryService {
     public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
-                .map(category -> new CategoryResponse(category.getId(), category.getName(), category.getDescription()))
+                .map(category -> new CategoryResponse(category.getId(), category.getCategoryName(), category.getDescription()))
                 .collect(Collectors.toList());
     }
 
-    public CategoryResponse getCategoryById(Integer id) {
+    public CategoryResponse getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
-        return new CategoryResponse(category.getId(), category.getName(), category.getDescription());
+        return new CategoryResponse(category.getId(), category.getCategoryName(), category.getDescription());
     }
 
     public CategoryResponse createCategory(Category category) {
         category = categoryRepository.save(category);
-        return new CategoryResponse(category.getId(), category.getName(), category.getDescription());
+        return new CategoryResponse(category.getId(), category.getCategoryName(), category.getDescription());
     }
 
-    public CategoryResponse updateCategory(Integer id, Category updatedCategory) {
+    public CategoryResponse updateCategory(Long id, Category updatedCategory) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
 
-        category.setName(updatedCategory.getName());
+        category.setCategoryName(updatedCategory.getCategoryName());
         category.setDescription(updatedCategory.getDescription());
 
         category = categoryRepository.save(category);
-        return new CategoryResponse(category.getId(), category.getName(), category.getDescription());
+        return new CategoryResponse(category.getId(), category.getCategoryName(), category.getDescription());
     }
 
-    public void deleteCategory(Integer id) {
+    public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
 

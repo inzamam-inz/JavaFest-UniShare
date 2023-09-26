@@ -1,7 +1,5 @@
 package com.unishare.backend.DTO.Response;
 
-import com.unishare.backend.model.Bookings;
-import com.unishare.backend.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,13 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponse {
-    private Integer productId;
+    private Long productId;
     private String name;
     private String description;
-    private String baseprice;
+    private Double basePrice;
     private String status;
 
-    private Integer ownerId;
-    private Integer categoryId;
-    private List<Integer> bookingIds = new ArrayList<>();
+    private Long ownerId;
+    private Long categoryId;
+    private List<Long> bookingIds = new ArrayList<>();
 }

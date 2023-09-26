@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -31,8 +32,9 @@ public class AuthenticationController {
     private final AuthenticationService service;
     private final MailSendingService mailSendingService;
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
+
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
         String OTP = service.generateHashedVerificationCode();
@@ -66,11 +68,11 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
 
-    @PostMapping("/verification")
-    public ResponseEntity<ApiResponse<String>> userVerification(@RequestBody UserVerificationRequest userVerificationRequest) {
+    @PostMapping("/email-verification")
+    public ResponseEntity<ApiResponse<String>> emailVerification(@RequestBody UserVerificationRequest userVerificationRequest) {
         try {
-            service.verification(userVerificationRequest);
-            return ResponseEntity.ok(new ApiResponse<>("Account is successfully verified.", null));
+            service.emailVerification(userVerificationRequest);
+            return ResponseEntity.ok(new ApiResponse<>("Email is successfully verified.", null));
         }
         catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));

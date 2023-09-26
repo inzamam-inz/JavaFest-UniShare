@@ -9,11 +9,13 @@ import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Token;
 import com.unishare.backend.model.TokenType;
+import com.unishare.backend.model.University;
 import com.unishare.backend.model.User;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import com.unishare.backend.repository.TokenRepository;
+import com.unishare.backend.repository.UniversityRepository;
 import com.unishare.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,15 +39,17 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final MailSendingService mailSendingService;
     private final UserService userService;
+    private final UniversityRepository universityRepository;
 
     public void register(RegisterRequest request, String OTP) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ErrorMessageException("This email address have already an account.");
         }
-
+        //request.getUniversity()
+        Optional <University> a = universityRepository.findById(1L);
         var user = User.builder()
                 .fullName(request.getFullName())
-                .university(request.getUniversity())
+                .university(universityRepository.findById(request.getUniversity()).orElse(null))
                 .idCard(request.getIdCard())
                 .profilePicture(request.getProfilePicture())
                 .address(request.getAddress())
@@ -55,7 +60,8 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .OTP(OTP)
                 .passwordResetToken(null)
-                .isVerified(false)
+                .isVerified(request.getIsVerified())
+                .isEmailVerified(false)
                 .isBlocked(false)
                 .build();
 
@@ -80,7 +86,7 @@ public class AuthenticationService {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
 
-        if (!user.isVerified()) {
+        if (!user.getIsVerified()) {
             throw new ErrorMessageException("Your Account is not verified. Please, verify first.");
         }
 
@@ -174,16 +180,16 @@ public class AuthenticationService {
         return hexStringBuilder.toString();
     }
 
-    public void verification(UserVerificationRequest request) {
+    public void emailVerification(UserVerificationRequest request) {
         User user = this.userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
-        if (user.isVerified()) {
+        if (user.getIsEmailVerified()) {
             throw new ErrorMessageException("Your account is already verified.");
         }
 
         boolean verified = user.getOTP().equals(request.getOTP());
         if (verified) {
-            user.setVerified(true);
+            user.setIsEmailVerified(true);
             userRepository.save(user);
         }
         else {

@@ -5,11 +5,11 @@ import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.exceptionHandlers.CategoryNotFoundException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
-import com.unishare.backend.model.Bookings;
+import com.unishare.backend.model.Booking;
 import com.unishare.backend.model.Category;
 import com.unishare.backend.model.Product;
 import com.unishare.backend.model.User;
-import com.unishare.backend.repository.BookingsRepository;
+import com.unishare.backend.repository.BookingRepository;
 import com.unishare.backend.repository.CategoryRepository;
 import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
@@ -24,14 +24,12 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final BookingsRepository bookingsRepository;
 
     public ProductService(ProductRepository productRepository, UserRepository userRepository,
-                          CategoryRepository categoryRepository, BookingsRepository bookingsRepository) {
+                          CategoryRepository categoryRepository, BookingRepository bookingRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
-        this.bookingsRepository = bookingsRepository;
     }
 
     public List<ProductResponse> getAllProducts() {
@@ -39,7 +37,7 @@ public class ProductService {
         return products.stream().map(this::convertToResponse).collect(Collectors.toList());
     }
 
-    public ProductResponse getProductById(Integer id) {
+    public ProductResponse getProductById(Long id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()) {
             return convertToResponse(productOptional.get());
@@ -51,7 +49,7 @@ public class ProductService {
         Product product = new Product();
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
-        product.setBaseprice(productRequest.getBaseprice());
+        product.setBasePrice(productRequest.getBasePrice());
         product.setStatus(productRequest.getStatus());
 
         User owner = userRepository.findById(productRequest.getOwnerId())
@@ -66,13 +64,13 @@ public class ProductService {
         return convertToResponse(product);
     }
 
-    public ProductResponse updateProduct(Integer id, ProductRequest productRequest) {
+    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
             product.setName(productRequest.getName());
             product.setDescription(productRequest.getDescription());
-            product.setBaseprice(productRequest.getBaseprice());
+            product.setBasePrice(productRequest.getBasePrice());
             product.setStatus(productRequest.getStatus());
 
             User owner = userRepository.findById(productRequest.getOwnerId())
@@ -89,7 +87,7 @@ public class ProductService {
         throw new ProductNotFoundException("Product not found with ID: " + id);
     }
 
-    public void deleteProduct(Integer id) {
+    public void deleteProduct(Long id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
@@ -101,15 +99,15 @@ public class ProductService {
     }
 
     private ProductResponse convertToResponse(Product product) {
-        List<Integer> bookingIds = product.getBookings().stream()
-                .map(Bookings::getId)
+        List<Long> bookingIds = product.getBookings().stream()
+                .map(Booking::getId)
                 .collect(Collectors.toList());
 
         ProductResponse response = new ProductResponse();
         response.setProductId(product.getId());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
-        response.setBaseprice(product.getBaseprice());
+        response.setBasePrice(product.getBasePrice());
         response.setStatus(product.getStatus());
         response.setOwnerId(product.getOwner().getId());
         response.setCategoryId(product.getCategory().getId());

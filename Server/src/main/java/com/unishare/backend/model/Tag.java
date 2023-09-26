@@ -1,29 +1,25 @@
 package com.unishare.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Entity
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class Category {
+public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String tagName;
 
-    private String categoryName;
-    private String description;
-
-    @OneToMany(mappedBy = "category")
+    @ManyToMany(mappedBy = "tags")
     private List<Product> products = new ArrayList<>();
-
 }
