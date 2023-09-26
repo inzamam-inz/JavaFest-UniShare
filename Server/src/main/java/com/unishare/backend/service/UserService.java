@@ -20,7 +20,7 @@ public class UserService {
     }
 
     public UserResponse makeUserResponse(User user) {
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePicture(), user.getIsVerified(), user.getIsBlocked());
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePicture(), user.getIsEmailVerified(), user.getIsVerified(), user.getIsBlocked());
     }
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();

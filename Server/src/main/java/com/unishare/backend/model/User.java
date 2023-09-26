@@ -33,6 +33,7 @@ public class User implements UserDetails {
     private String passwordResetToken;
     private Double lat;
     private Double lng;
+    private Boolean isEmailVerified;
     private Boolean isVerified;
     private Boolean isBlocked;
 

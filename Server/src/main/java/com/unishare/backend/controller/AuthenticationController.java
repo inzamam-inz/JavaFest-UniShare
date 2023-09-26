@@ -68,11 +68,11 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
 
-    @PostMapping("/verification")
-    public ResponseEntity<ApiResponse<String>> userVerification(@RequestBody UserVerificationRequest userVerificationRequest) {
+    @PostMapping("/email-verification")
+    public ResponseEntity<ApiResponse<String>> emailVerification(@RequestBody UserVerificationRequest userVerificationRequest) {
         try {
-            service.verification(userVerificationRequest);
-            return ResponseEntity.ok(new ApiResponse<>("Account is successfully verified.", null));
+            service.emailVerification(userVerificationRequest);
+            return ResponseEntity.ok(new ApiResponse<>("Email is successfully verified.", null));
         }
         catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));

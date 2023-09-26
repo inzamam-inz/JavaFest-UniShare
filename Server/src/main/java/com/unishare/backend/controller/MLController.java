@@ -13,6 +13,7 @@ import com.unishare.backend.service.CloudinaryImageService;
 import com.unishare.backend.service.CloudinaryImageServiceImplementation;
 import com.unishare.backend.service.UniversityService;
 import io.jsonwebtoken.io.IOException;
+import lombok.RequiredArgsConstructor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -29,6 +30,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ML")
+@RequiredArgsConstructor
 public class MLController {
     String SandboxAccessKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZjkwODIzMTUtOGFmNi00ODE5LWExMTMtNTE2MGM4ODVkYWY3IiwidHlwZSI6InNhbmRib3hfYXBpX3Rva2VuIn0.NIPHKmIl5NW2MBndM1ajhrv8XJ7sLSXXon1CmrEBIw0";
     String ProductionAccessKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZjkwODIzMTUtOGFmNi00ODE5LWExMTMtNTE2MGM4ODVkYWY3IiwidHlwZSI6ImFwaV90b2tlbiJ9.CfpRANr_-CX6NUY4n5bOPsQBySGnkrNOHtUuHSXqxuI";

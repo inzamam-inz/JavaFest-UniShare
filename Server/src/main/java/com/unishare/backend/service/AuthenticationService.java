@@ -60,7 +60,8 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .OTP(OTP)
                 .passwordResetToken(null)
-                .isVerified(false)
+                .isVerified(request.getIsVerified())
+                .isEmailVerified(false)
                 .isBlocked(false)
                 .build();
 
@@ -179,16 +180,16 @@ public class AuthenticationService {
         return hexStringBuilder.toString();
     }
 
-    public void verification(UserVerificationRequest request) {
+    public void emailVerification(UserVerificationRequest request) {
         User user = this.userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
-        if (user.getIsVerified()) {
+        if (user.getIsEmailVerified()) {
             throw new ErrorMessageException("Your account is already verified.");
         }
 
         boolean verified = user.getOTP().equals(request.getOTP());
         if (verified) {
-            user.setIsVerified(true);
+            user.setIsEmailVerified(true);
             userRepository.save(user);
         }
         else {

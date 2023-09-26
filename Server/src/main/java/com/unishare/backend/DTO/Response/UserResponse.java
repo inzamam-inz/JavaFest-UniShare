@@ -12,6 +12,7 @@ public class UserResponse {
     private String fullName;
     private String email;
     private String profilePicture;
+    private boolean isEmailVerified;
     private boolean isVerified;
     private boolean isBlocked;
 }
