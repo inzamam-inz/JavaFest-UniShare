@@ -1,23 +1,30 @@
 "use client";
 
 import ImageUpload from "@/components/GlobalComponents/ImageUpload/ImageUpload";
+import AuthService from "@/lib/services/authService";
 import { CogIcon, HomeIcon, UserIcon } from "@heroicons/react/24/outline";
 import { Button, Step, Stepper } from "@material-tailwind/react";
 import { createTheme } from "@mui/material/styles";
 import GoogleMapReact from "google-map-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const univserities = [
-    "University of Toronto",
-    "University of Waterloo",
-    "University of Ottawa",
-  ];
-
+  // key value pair of university name and id
+  const [univserities, setUniversities] = useState([
+    {
+      name: "University of Dhaka",
+      id: 1,
+    },
+    {
+      name: "Bangladesh University of Engineering and Technology",
+      id: 2,
+    },
+  ]);
+  const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
   const [isFirstStep, setIsFirstStep] = useState(false);
   const [idCardImage, setIdCardImage] = useState(null);
@@ -34,8 +41,8 @@ export default function SignUp() {
     confirmPassword: "",
     address: "",
     phoneNumber: "",
-    idCardImage: null,
-    profileImage: null,
+    idCardImage: "",
+    profileImage: "",
     otp: "",
     role: "USER",
   });
@@ -66,18 +73,58 @@ export default function SignUp() {
         toast.error("Please upload all required images");
         return;
       }
-
       setActiveStep(2);
     }
   };
 
-  const setLocation = (position) => {
-    const { latitude, longitude } = position.coords;
-    setUserLocation({ lat: latitude, lng: longitude });
+  const autoVerify = () => {
+    const data = new FormData();
+    data.append("idCard", idCardImage);
+    data.append("profilePicture", profileImage);
+    data.append("universityId", formData.university);
+    AuthService.autoVerify(data)
+      .then((res) => {
+        toast.success("Verification successful");
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Verification failed");
+      });
+  };
+
+  const [markerCoords, setMarkerCoords] = useState(null);
+
+  // Function to handle map click event
+  const handleMapClick = ({ x, y, lat, lng, event }) => {
+    // Update the state with the clicked coordinates
+    console.log({ x, y, lat, lng, event });
+    setUserLocation({ lat, lng });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const data = {
+      fullName: formData.fullName,
+      email: formData.email,
+      universityId: formData.university,
+      password: formData.password,
+      address: formData.address,
+      // phoneNumber: formData.phoneNumber,
+      idCardImage: "",
+      profilePicture: "",
+      role: "USER",
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+    };
+    AuthService.register(data)
+      .then((res) => {
+        toast.success("Registration successful");
+        router.push("/login");
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Registration failed");
+      });
   };
 
   // Function to handle ID card image upload
@@ -196,8 +243,13 @@ export default function SignUp() {
                           })
                         }
                       >
+                        <option value="" disabled selected>
+                          Select your university
+                        </option>
                         {univserities.map((university) => (
-                          <option value={university}>{university}</option>
+                          <option value={university.id}>
+                            {university.name}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -307,7 +359,18 @@ export default function SignUp() {
                         defaultZoom={12}
                         center={userLocation} // Center the map on the user's location
                         className="h-screen	"
-                      ></GoogleMapReact>
+                        onClick={handleMapClick} // Attach the click event handler
+                      >
+                        {userLocation && (
+                          <div lat={userLocation.lat} lng={userLocation.lng}>
+                            <img
+                              className="w-8 h-8"
+                              src="https://res.cloudinary.com/unishare/image/upload/v1695760752/Logo/marker-google-map.png"
+                              alt="location"
+                            />
+                          </div>
+                        )}
+                      </GoogleMapReact>
                     </div>
                   </div>
                 </div>
@@ -382,17 +445,31 @@ export default function SignUp() {
                           </p>
                         </div>
                       </div>
+                      {/* or prcoeed without verification */}
+                      <div class="flex flex-wrap mt-6 -mx-3">
+                        <div class="w-full px-3 mb-6 md:mb-0">
+                          <p class="block mb-2 text-xs font-semibold tracking-wide text-gray-700 uppercase dark:text-black text-center">
+                            Or
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
             </form>
             <div className="mt-16 flex justify-center">
-              {/* <Button onClick={handlePrev} disabled={isFirstStep}>
-                Prev
-              </Button> */}
+              {activeStep === 1 && (
+                <Button
+                  className=" outline outline-1 bg-slate-200 text-black mx-2"
+                  onClick={autoVerify}
+                >
+                  Verify
+                </Button>
+              )}
+
               {activeStep === 2 ? (
-                <Button onClick={handleNext}>Submit</Button>
+                <Button onClick={handleSubmit}>Submit</Button>
               ) : (
                 <Button onClick={handleNext}>Next</Button>
               )}

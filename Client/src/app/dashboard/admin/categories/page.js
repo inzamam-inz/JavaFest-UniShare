@@ -39,6 +39,7 @@ const Page = () => {
       setLoading(true);
       CategoryService.getAll()
         .then((res) => {
+          console.log(res);
           dispatch(setCategory(res));
           setLoading(false);
         })

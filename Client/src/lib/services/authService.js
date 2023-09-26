@@ -1,7 +1,7 @@
 import api from "../api";
 const AuthService = {
   login: (user) => {
-    return api.postAsync("/auth/login", user);
+    return api.postAsync("/auth/authenticate", user);
   },
 
   register: (user) => {
@@ -23,8 +23,12 @@ const AuthService = {
   deleteMe: () => {
     return api.deleteAsync("/auth/me");
   },
-
-  
+  autoVerify: (data) => {
+    return api.postAsync(`/ML/auto-verification`, data);
+  },
+  imageUpload: (data) => {
+    return api.postAsync(`/upload/image`, data);
+  },
 };
 
 export default AuthService;

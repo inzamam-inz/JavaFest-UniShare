@@ -32,16 +32,18 @@ async function apiClient(endpoint, options, method) {
             method,
             body: JSON.stringify(options),
           });
-
     if (!response.ok) {
+      const error = await response.json();
       throw new Error(
-        (await response.text()) || "An error occurred during the API request"
+        error.errorResponse || "An error occurred during the API request"
       );
     }
     if (method === "DELETE") {
       return await response.text();
     }
-    return await response.successResponse.json();
+    const result = await response.json();
+    console.log(result);
+    return result.successResponse;
   } catch (error) {
     throw error;
   }
