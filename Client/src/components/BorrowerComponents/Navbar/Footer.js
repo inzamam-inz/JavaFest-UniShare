@@ -37,7 +37,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 py-10">
           <p className="text-sm text-gray-400">
-            Copyright &copy; 2021 Your Company, Inc.
+            Copyright &copy; 2023 Team Herewego, Inc.
           </p>
         </div>
       </div>

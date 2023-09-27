@@ -1,15 +1,14 @@
-function getDefaultHeaders(includeContent) {
+function getDefaultHeaders(content, includeContent) {
   const headers = {};
-  if (includeContent) {
-    headers["Content-type"] = "multipart/form-data";
+  if (!includeContent) {
+    headers["Content-type"] = `application/json`;
   } else {
-    headers["Content-type"] = "application/json";
   }
 
-  let token = cookieStore.get("jwt_token")?.value;
-  // if (token) {
-  //   headers["Authorization"] = `Bearer ${cookieStore.get("jwt_token")?.value}`;
-  // }
+  let token = localStorage.getItem("jwt_token");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
 
   return headers;
 }
@@ -20,10 +19,10 @@ async function apiClient(endpoint, options, method, isFormData) {
     // Add any necessary headers or configurations to the 'options' object
     const requestOptions = {
       headers: {
-        ...getDefaultHeaders(false),
+        ...getDefaultHeaders(options, false),
       },
       formDataHeader: {
-        ...getDefaultHeaders(true),
+        ...getDefaultHeaders(options, true),
       },
     };
 
@@ -32,7 +31,7 @@ async function apiClient(endpoint, options, method, isFormData) {
         ? await fetch(url, { headers: requestOptions.headers, method: method })
         : isFormData
         ? await fetch(url, {
-            headers: requestOptions.formDataHeader,
+            // headers: requestOptions.formDataHeader,
             method: method,
             body: options,
           })

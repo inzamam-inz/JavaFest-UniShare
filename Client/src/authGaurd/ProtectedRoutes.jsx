@@ -5,15 +5,14 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux"; // or your preferred state management library
 
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated); // adjust this to your state structure
-
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !localStorage.getItem("jwt_token")) {
       router.push("/login");
     }
-  }, [isAuthenticated]);
+  }, []);
 
   return <>{children}</>;
 };

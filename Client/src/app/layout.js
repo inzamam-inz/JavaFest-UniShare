@@ -6,6 +6,7 @@ import store from "../store";
 import { ToastContainer } from "react-toastify";
 import "./globals.css";
 const RootLayout = ({ children }) => {
+  
   return (
     <html lang="en">
       <head>

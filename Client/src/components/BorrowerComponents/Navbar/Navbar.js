@@ -6,9 +6,12 @@ import {
   QuestionMarkCircleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import { Tooltip } from "@material-tailwind/react";
 import { ArrowCircleRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -16,6 +19,7 @@ function classNames(...classes) {
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [active, setActive] = useState("/");
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const navbarItems = [
     { name: "Home", key: "/", href: "/dashboard/storefront/home" },
     {
@@ -36,25 +40,27 @@ const Navbar = () => {
       <header className="relative z-10">
         <nav aria-label="Top">
           {/* Top navigation */}
-          <div className="bg-gray-900">
-            <div className="mx-auto flex h-10 max-w-7xl items-center justify-end px-4 sm:px-6 lg:px-8">
-              <div className="flex items-right space-x-6">
-                {/* sign in route */}
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-white hover:text-gray-100"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="text-sm font-medium text-white hover:text-gray-100"
-                >
-                  Create an account
-                </Link>
+          {!isAuthenticated && (
+            <div className="bg-gray-900">
+              <div className="mx-auto flex h-10 max-w-7xl items-center justify-end px-4 sm:px-6 lg:px-8">
+                <div className="flex items-right space-x-6">
+                  {/* sign in route */}
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium text-white hover:text-gray-100"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="text-sm font-medium text-white hover:text-gray-100"
+                  >
+                    Create an account
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Secondary navigation */}
           <div className="bg-white bg-opacity-10 backdrop-blur-md backdrop-filter">
@@ -127,46 +133,59 @@ const Navbar = () => {
                         />
                       </a>
                       {/* Owner Dashboard button, white background */}
-                      <Link
-                        href="/dashboard/owner"
-                        className="hidden lg:block text-sm font-medium text-gray-100 hover:text-black p-2 hover:bg-white bg-gray-400 rounded-lg mr-5"
-                      >
-                        Owner Dashboard
-                      </Link>
+                      {isAuthenticated && (
+                        <Link
+                          href="/dashboard/owner"
+                          className="hidden lg:block text-sm font-medium text-gray-100 hover:text-black p-2 hover:bg-white bg-gray-400 rounded-lg mr-5"
+                        >
+                          Owner Dashboard
+                        </Link>
+                      )}
                       <div className="ml-4 flow-root lg:ml-8">
-                        <a
+                        <p
                           href="#"
                           className="group -m-2 flex items-center p-2"
                         >
-                          <BellAlertIcon
-                            className="h-6 w-6 flex-shrink-0 mr-4 text-white"
-                            aria-hidden="true"
-                          />
-                          <Link
-                            href="/dashboard/storefront/user"
-                            className="text-sm font-medium text-white hover:text-gray-100"
-                          >
-                            <UserCircleIcon
-                              className="flex-shrink-0 h-6 w-6 mr-4 text-white"
-                              aria-hidden="true"
-                            />
-                          </Link>
-
                           {/* Logout Icon  */}
-                          <a
-                            onClick={() => {
-                              cookieStore.remove("jwt_token");
-                              cookieStore.remove("user");
-                              window.location.href = "/login";
-                            }}
-                            className="text-sm font-medium text-white hover:text-gray-100"
-                          >
-                            <ArrowCircleRightOutlined
-                              className="flex-shrink-0 h-6 w-6 text-white"
-                              aria-hidden="true"
-                            />
-                          </a>
-                        </a>
+                          {isAuthenticated && (
+                            <>
+                              <BellAlertIcon
+                                className="h-6 w-6 flex-shrink-0 mr-4 text-white"
+                                aria-hidden="true"
+                              />
+                              <Link
+                                href="/dashboard/storefront/user"
+                                className="text-sm font-medium text-white hover:text-gray-100"
+                              >
+                                <UserCircleIcon
+                                  className="flex-shrink-0 h-6 w-6 mr-4 text-white"
+                                  aria-hidden="true"
+                                />
+                              </Link>
+                              <button
+                                onClick={() => {
+                                  localStorage.removeItem("jwt_token");
+                                  localStorage.removeItem("refresh_token");
+                                  localStorage.removeItem("user");
+                                  window.location.href = "/login";
+                                  toast.success("Logout successful");
+                                }}
+                                className="text-sm font-medium text-white hover:text-gray-100"
+                              >
+                                <Tooltip
+                                  content="Logout"
+                                  className="text-black z-10 bg-slate-300"
+                                  placement="bottom"
+                                >
+                                  <ArrowCircleRightOutlined
+                                    className="flex-shrink-0 h-6 w-6 text-white"
+                                    aria-hidden="true"
+                                  />
+                                </Tooltip>
+                              </button>
+                            </>
+                          )}
+                        </p>
                       </div>
                     </div>
                   </div>
