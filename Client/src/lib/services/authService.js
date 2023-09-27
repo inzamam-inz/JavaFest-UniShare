@@ -5,7 +5,7 @@ const AuthService = {
   },
 
   register: (user) => {
-    return api.postAsync("/auth/register", user);
+    return api.postFormAsync("/auth/register", user);
   },
 
   logout: () => {

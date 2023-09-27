@@ -1,6 +1,8 @@
 function getDefaultHeaders(includeContent) {
   const headers = {};
   if (includeContent) {
+    headers["Content-type"] = "multipart/form-data";
+  } else {
     headers["Content-type"] = "application/json";
   }
 
@@ -12,24 +14,31 @@ function getDefaultHeaders(includeContent) {
   return headers;
 }
 
-async function apiClient(endpoint, options, method) {
+async function apiClient(endpoint, options, method, isFormData) {
   try {
     const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
     // Add any necessary headers or configurations to the 'options' object
     const requestOptions = {
       headers: {
-        ...getDefaultHeaders(
-          options.body && options.body instanceof FormData ? false : true
-        ),
+        ...getDefaultHeaders(false),
+      },
+      formDataHeader: {
+        ...getDefaultHeaders(true),
       },
     };
-    // Execute the API request
+
     const response =
       method === "GET" || method === "DELETE"
         ? await fetch(url, { headers: requestOptions.headers, method: method })
+        : isFormData
+        ? await fetch(url, {
+            headers: requestOptions.formDataHeader,
+            method: method,
+            body: options,
+          })
         : await fetch(url, {
-            ...requestOptions,
-            method,
+            headers: requestOptions.headers,
+            method: method,
             body: JSON.stringify(options),
           });
     if (!response.ok) {
@@ -60,19 +69,23 @@ class ApiClient {
   }
 
   async getAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, options, "GET");
+    return await apiClient(endpoint, options, "GET", false);
+  }
+
+  async postFormAsync(endpoint, options = {}) {
+    return await apiClient(endpoint, options, "POST", true);
   }
 
   async deleteAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, options, "DELETE");
+    return await apiClient(endpoint, options, "DELETE", false);
   }
 
   async postAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, options, "POST");
+    return await apiClient(endpoint, options, "POST", false);
   }
 
   async putAsync(endpoint, options = {}) {
-    return await apiClient(endpoint, options, "PUT");
+    return await apiClient(endpoint, options, "PUT", false);
   }
 }
 

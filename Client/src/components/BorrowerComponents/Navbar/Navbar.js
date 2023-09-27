@@ -6,6 +6,7 @@ import {
   QuestionMarkCircleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import { ArrowCircleRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import { useState } from "react";
 function classNames(...classes) {
@@ -141,10 +142,30 @@ const Navbar = () => {
                             className="h-6 w-6 flex-shrink-0 mr-4 text-white"
                             aria-hidden="true"
                           />
-                          <UserCircleIcon
-                            className="flex-shrink-0 h-6 w-6 text-white"
-                            aria-hidden="true"
-                          />
+                          <Link
+                            href="/dashboard/storefront/user"
+                            className="text-sm font-medium text-white hover:text-gray-100"
+                          >
+                            <UserCircleIcon
+                              className="flex-shrink-0 h-6 w-6 mr-4 text-white"
+                              aria-hidden="true"
+                            />
+                          </Link>
+
+                          {/* Logout Icon  */}
+                          <a
+                            onClick={() => {
+                              cookieStore.remove("jwt_token");
+                              cookieStore.remove("user");
+                              window.location.href = "/login";
+                            }}
+                            className="text-sm font-medium text-white hover:text-gray-100"
+                          >
+                            <ArrowCircleRightOutlined
+                              className="flex-shrink-0 h-6 w-6 text-white"
+                              aria-hidden="true"
+                            />
+                          </a>
                         </a>
                       </div>
                     </div>

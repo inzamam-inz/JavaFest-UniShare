@@ -2,12 +2,11 @@
 
 import ImageUpload from "@/components/GlobalComponents/ImageUpload/ImageUpload";
 import AuthService from "@/lib/services/authService";
-import { CogIcon, HomeIcon, UserIcon } from "@heroicons/react/24/outline";
-import { Button, Step, Stepper } from "@material-tailwind/react";
+import { Button } from "@material-tailwind/react";
 import { createTheme } from "@mui/material/styles";
 import GoogleMapReact from "google-map-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 const defaultTheme = createTheme();
@@ -77,6 +76,21 @@ export default function SignUp() {
     }
   };
 
+  const emailVerify = () => {
+    const data = {
+      email: formData.email,
+      otp: formData.otp,
+    };
+    AuthService.verifyEmail(data)
+      .then((res) => {
+        toast.success("Verification successful");
+        router.push("/dashboard/storefront/home");
+      })
+      .catch((err) => {
+        toast.error("Verification failed");
+      });
+  };
+
   const autoVerify = () => {
     const data = new FormData();
     data.append("idCard", idCardImage);
@@ -92,8 +106,6 @@ export default function SignUp() {
       });
   };
 
-  const [markerCoords, setMarkerCoords] = useState(null);
-
   // Function to handle map click event
   const handleMapClick = ({ x, y, lat, lng, event }) => {
     // Update the state with the clicked coordinates
@@ -103,27 +115,27 @@ export default function SignUp() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = {
-      fullName: formData.fullName,
-      email: formData.email,
-      universityId: formData.university,
-      password: formData.password,
-      address: formData.address,
-      // phoneNumber: formData.phoneNumber,
-      idCardImage: "",
-      profilePicture: "",
-      role: "USER",
-      lat: userLocation.lat,
-      lng: userLocation.lng,
-    };
+    const data = new FormData();
+    data.append("fullName", formData.fullName);
+    data.append("email", formData.email);
+    data.append("university", formData.university);
+    data.append("password", formData.password);
+    data.append("address", formData.address);
+    data.append("phoneNumber", formData.phoneNumber);
+    data.append("idCard", idCardImage);
+    data.append("profilePicture", profileImage);
+    data.append("role", formData.role);
+    data.append("lat", userLocation.lat);
+    data.append("lng", userLocation.lng);
+
     AuthService.register(data)
       .then((res) => {
         toast.success("Registration successful");
         router.push("/login");
+        // setActiveStep(1);
       })
       .catch((err) => {
-        console.log(err);
-        toast.error("Registration failed");
+        toast.error(err.message);
       });
   };
 
@@ -165,26 +177,66 @@ export default function SignUp() {
               UniShare
             </Link>
             <h2 class=" text-2xl  text-center text-gray-800">Sign Up</h2>
-            <div className="w-full py-4 px-8 my-4">
+            {/* <div className="w-full py-4 px-8 my-4">
               <Stepper
                 className=" bg-orange-100 rounded-xl"
                 activeStep={activeStep}
                 isFirstStep={(value) => setIsFirstStep(value)}
               >
-                <Step>
+                <Step
+                  onClick={() => {
+                    setActiveStep(0);
+                  }}
+                >
                   <HomeIcon className="p-2" />
                 </Step>
-                <Step>
+                <Step
+                  onClick={() => {
+                    setActiveStep(1);
+                  }}
+                >
                   <UserIcon className="p-2" />
                 </Step>
-                <Step>
+                <Step
+                  onClick={() => {
+                    setActiveStep(2);
+                  }}
+                >
                   <CogIcon className="p-2" />
                 </Step>
               </Stepper>
-            </div>
+            </div> */}
             <form class="mt-6" action="#" method="POST" onSubmit={handleSubmit}>
               {activeStep === 0 && (
                 <div>
+                  <div class="flex flex-wrap mb-6 -mx-3">
+                    <div class="w-full px-3 mb-6 md:w-1/2 md:mb-0">
+                      <label
+                        class="block mb-2 text-xs font-semibold tracking-wide text-gray-700 uppercase dark:text-black"
+                        for="grid-first-name"
+                      >
+                        ID Card
+                      </label>
+                      <ImageUpload
+                        label="ID Card"
+                        onImageChange={handleIdCardUpload}
+                        currentImage={idCardImage}
+                      />
+                    </div>
+                    <div class="w-full px-3 md:w-1/2">
+                      <label
+                        class="block mb-2 text-xs font-semibold tracking-wide text-gray-700 uppercase dark:text-black"
+                        for="grid-last-name"
+                      >
+                        Profile Picture
+                      </label>
+                      <ImageUpload
+                        label="Profile Picture"
+                        onImageChange={handleProfileUpload}
+                        currentImage={profileImage}
+                      />
+                    </div>
+                  </div>
                   <div class="flex flex-wrap mb-6 -mx-3">
                     <div class="w-full px-3 mb-6  md:mb-0">
                       <label
@@ -425,11 +477,20 @@ export default function SignUp() {
                             class="block w-full px-4 py-3 mb-3 text-gray-700 bg-white border border-gray-300 rounded-lg  focus:border-purple-400 dark:focus:border-purple-400 focus:outline-none focus:ring"
                             id="grid-first-name"
                             type="text"
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                otp: e.target.value,
+                              })
+                            }
                             placeholder="Enter OTP here"
                           />
                         </div>
                         <div class="w-full px-3 mb-6 md:w-1/3 md:mb-0">
-                          <button class="block w-full px-4 py-3 mb-3 text-gray-700 bg-white border border-gray-600 rounded-lg hover:bg-slate-800 hover:text-white focus:outline-none focus:ring">
+                          <button
+                            onClick={emailVerify}
+                            class="block w-full px-4 py-3 mb-3 text-gray-700 bg-white border border-gray-600 rounded-lg hover:bg-slate-800 hover:text-white focus:outline-none focus:ring"
+                          >
                             Verify
                           </button>
                         </div>
@@ -468,7 +529,7 @@ export default function SignUp() {
                 </Button>
               )}
 
-              {activeStep === 2 ? (
+              {activeStep === 0 ? (
                 <Button onClick={handleSubmit}>Submit</Button>
               ) : (
                 <Button onClick={handleNext}>Next</Button>
