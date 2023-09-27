@@ -36,19 +36,6 @@ public class AuthenticationController {
     private final PasswordEncoder passwordEncoder;
 
 
-//    @PostMapping("/register")
-//    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
-//        String OTP = service.generateHashedVerificationCode();
-//
-//        try {
-//            UserResponse temp_user = service.register(request, OTP);
-//            //mailSendingService.sendOTPMail(request.getEmail(), OTP);
-//            return ResponseEntity.ok(new ApiResponse<>(temp_user, null));
-//        } catch (ErrorMessageException e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-//        }
-//    }
-
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @RequestParam("idCard") MultipartFile idCard,
