@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.awt.print.Book;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,6 +21,13 @@ public class Review {
     private String comment;
     private Double rating;
 
+    @OneToOne
+    @JoinColumn(name = "bookingId")
+    private Booking booking;
+
+    @OneToOne
+    @JoinColumn(name = "reviewerId")
+    private User reviewer;
 
 
 //    @ManyToOne(fetch = FetchType.LAZY)

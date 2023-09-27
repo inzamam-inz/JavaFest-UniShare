@@ -25,7 +25,7 @@ public class Product {
     private String description;
     private Double basePrice;
     private String status;
-    private boolean isRestricted;
+    private Boolean isRestricted;
 
     @ManyToOne
     @JoinColumn(name = "ownerId")
