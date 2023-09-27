@@ -65,13 +65,9 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
         saveUserToken(savedUser, jwtToken);
-
         UserResponse userResponse = userService.makeUserResponse(savedUser);
 
         return userResponse;
-
-        //return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
-
     }
 
 
@@ -83,7 +79,6 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
@@ -152,17 +147,14 @@ public class AuthenticationService {
         final int CODE_LENGTH = 10;
 
         try {
-            // Generate a random verification code
             SecureRandom secureRandom = new SecureRandom();
             byte[] randomBytes = new byte[CODE_LENGTH];
             secureRandom.nextBytes(randomBytes);
             String verificationCode = bytesToHex(randomBytes);
 
-            // Hash the verification code using SHA-256
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = messageDigest.digest(verificationCode.getBytes());
 
-            // Convert the hashed bytes to a hexadecimal string
             return bytesToHex(hashedBytes);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

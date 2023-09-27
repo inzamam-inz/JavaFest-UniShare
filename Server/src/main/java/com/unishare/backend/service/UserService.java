@@ -23,7 +23,21 @@ public class UserService {
     }
 
     public UserResponse makeUserResponse(User user) {
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getProfilePicture(), user.getIsEmailVerified(), user.getIsVerified(), user.getIsBlocked());
+        return new UserResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getIdCard(),
+                user.getProfilePicture(),
+                user.getAddress(),
+                user.getPhoneNumber(),
+                user.getLat(),
+                user.getLng(),
+                user.getUniversity().getId(),
+                user.getIsEmailVerified(),
+                user.getIsVerified(),
+                user.getIsBlocked()
+        );
     }
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -72,11 +86,17 @@ public class UserService {
         return makeUserResponse(user);
     }
 
-    public UserResponse getUserByToken(String token) {
+    public UserResponse getUserResponseByToken(String token) {
         String email = jwtService.extractEmailFromBearerToken(token);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ErrorMessageException("User not found with token."));
         return makeUserResponse(user);
+    }
+
+    public User getUserByToken(String token) {
+        String email = jwtService.extractEmailFromBearerToken(token);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ErrorMessageException("User not found with token."));
     }
 
     // Add more service methods here as needed

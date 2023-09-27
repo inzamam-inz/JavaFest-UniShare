@@ -56,15 +56,16 @@ public class ProductController {
 
     @PostMapping()
     public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImage(
+            @RequestHeader("Authorization") String token,
             @RequestParam("image") MultipartFile image,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("price") Double price,
-            @RequestParam("categoryId") Long categoryId,
-            @RequestParam("ownerId") Long ownerId
+            @RequestParam("perDay") Double perDay,
+            @RequestParam("categoryId") Long categoryId
     ) {
         try {
-            ProductResponse createdProduct = productService.createProductWithImage(image, name, description, price, categoryId, ownerId);
+            ProductResponse createdProduct = productService.createProductWithImage(image, name, description, price, perDay, categoryId, token);
             return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
