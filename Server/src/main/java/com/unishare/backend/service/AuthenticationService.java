@@ -195,7 +195,7 @@ public class AuthenticationService {
         }
     }
 
-    public void sendResetToken(SendResetTokenRequest request, String token) {
+    public void sendResetToken(SendEmailVerificationCodeRequest request, String token) {
         User user = this.userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
 
@@ -259,5 +259,17 @@ public class AuthenticationService {
         UserResponse userResponse = userService.makeUserResponse(savedUser);
         //return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
         return userResponse;
+    }
+
+    public void sendEmailVerificationCode(String request) {
+        String email = jwtService.extractEmailFromBearerToken(request);
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
+        if (user.getIsEmailVerified()) {
+            throw new ErrorMessageException("Email is already verified.");
+        }
+
+        String OTP = user.getOTP();
+        mailSendingService.sendOTPMail(email, OTP);
     }
 }
