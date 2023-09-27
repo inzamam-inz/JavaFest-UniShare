@@ -11,7 +11,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingsRequest {
+public class BookingRequest {
     private Date rentFrom;
     private Date rentTo;
     private String confirmationStatus;

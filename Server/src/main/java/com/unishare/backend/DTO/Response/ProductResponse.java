@@ -15,6 +15,8 @@ public class ProductResponse {
     private String name;
     private String description;
     private Double basePrice;
+    private Double perDayPrice;
+    private String image;
     private String status;
 
     private Long ownerId;

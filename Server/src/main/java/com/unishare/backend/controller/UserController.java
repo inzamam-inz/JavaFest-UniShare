@@ -3,8 +3,11 @@ package com.unishare.backend.controller;
 import com.unishare.backend.DTO.ApiResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.UserUpdateRequest;
 import com.unishare.backend.DTO.Response.UserResponse;
+import com.unishare.backend.service.JwtService;
 import com.unishare.backend.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,12 +19,16 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public UserController(UserService userService) {
+    @Autowired
+    public UserController(UserService userService, JwtService jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping()
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
         try {
             List<UserResponse> users = userService.getAllUsers();
@@ -32,6 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
         try {
             UserResponse user = userService.getUserById(id);
@@ -42,15 +50,23 @@ public class UserController {
     }
 
     @PutMapping("/profile-update")
-    public ResponseEntity<UserResponse> profileUpdate(@RequestBody UserUpdateRequest userUpdateRequest) {
-        UserResponse updatedUser = userService.userProfileUpdate(userUpdateRequest);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<ApiResponse<UserResponse>> profileUpdate(@RequestBody UserUpdateRequest userUpdateRequest) {
+        try {
+            UserResponse updatedUser = userService.userProfileUpdate(userUpdateRequest);
+            return ResponseEntity.ok(new ApiResponse<>(updatedUser, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(new ApiResponse<>(null, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @PutMapping("/block-user/{id}")

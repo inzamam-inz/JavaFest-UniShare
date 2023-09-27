@@ -4,6 +4,7 @@ import com.cloudinary.Api;
 import com.unishare.backend.DTO.ApiResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
+import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.model.User;
 import com.unishare.backend.repository.UserRepository;
@@ -35,15 +36,38 @@ public class AuthenticationController {
     private final PasswordEncoder passwordEncoder;
 
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
-        String OTP = service.generateHashedVerificationCode();
+//    @PostMapping("/register")
+//    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
+//        String OTP = service.generateHashedVerificationCode();
+//
+//        try {
+//            UserResponse temp_user = service.register(request, OTP);
+//            //mailSendingService.sendOTPMail(request.getEmail(), OTP);
+//            return ResponseEntity.ok(new ApiResponse<>(temp_user, null));
+//        } catch (ErrorMessageException e) {
+//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+//        }
+//    }
 
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponse>> register(
+            @RequestParam("idCard") MultipartFile idCard,
+            @RequestParam("profilePicture") MultipartFile profilePicture,
+            @RequestParam("fullName") String fullName,
+            @RequestParam("password") String password,
+            @RequestParam("email") String email,
+            @RequestParam("address") String address,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("lat") Double lat,
+            @RequestParam("lng") Double lng,
+            @RequestParam("university") Long university
+    ) {
         try {
-            service.register(request, OTP);
-            mailSendingService.sendOTPMail(request.getEmail(), OTP);
-            return ResponseEntity.ok(new ApiResponse<>("Congratulations! Your registration has completed.", null));
-        } catch (ErrorMessageException e) {
+            String OTP = service.generateHashedVerificationCode();
+            UserResponse temp_user = service.register(idCard, profilePicture, fullName, password, email, address, phoneNumber, lat, lng, university, OTP);
+            return ResponseEntity.ok(new ApiResponse<>(temp_user, null));
+        }
+        catch (ErrorMessageException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }

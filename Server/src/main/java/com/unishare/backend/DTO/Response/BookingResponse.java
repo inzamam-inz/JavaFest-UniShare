@@ -1,6 +1,5 @@
 package com.unishare.backend.DTO.Response;
 
-import com.unishare.backend.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingsResponse {
+public class BookingResponse {
     private Long id;
     private Date rentFrom;
     private Date rentTo;

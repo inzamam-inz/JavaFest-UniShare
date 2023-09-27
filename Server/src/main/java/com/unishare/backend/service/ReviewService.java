@@ -63,7 +63,7 @@ public class ReviewService {
         review = reviewRepository.save(review);
         booking.setReview(review);
         bookingRepository.save(booking);
-        
+
         return makeReviewResponse(review);
     }
 

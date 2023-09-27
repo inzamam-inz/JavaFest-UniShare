@@ -7,10 +7,7 @@ import com.unishare.backend.DTO.Request.MLServiceOneImageRequest;
 import com.unishare.backend.DTO.Request.MLServiceTwoImageRequest;
 import com.unishare.backend.DTO.Response.IdVerificationResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
-import com.unishare.backend.model.University;
-import com.unishare.backend.repository.UniversityRepository;
 import com.unishare.backend.service.CloudinaryImageService;
-import com.unishare.backend.service.CloudinaryImageServiceImplementation;
 import com.unishare.backend.service.UniversityService;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +16,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Map;
 
 @CrossOrigin(origins = "*")
 
@@ -189,7 +183,7 @@ public class MLController {
 
         try {
             String universityName = universityService.getUniversityById(universityId).getUniversityName();
-            String idCardUrl = this.cloudinaryImageService.imageUpload(idCard).get("secure_url").toString();
+            String idCardUrl = this.cloudinaryImageService.getUploadedImageUrl(idCard);
 
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -216,7 +210,7 @@ public class MLController {
                 return ResponseEntity.badRequest().body(new ApiResponse<>(null, "ID card is not authorized."));
             }
 
-            String profilePictureUrl = this.cloudinaryImageService.imageUpload(profilePicture).get("secure_url").toString();
+            String profilePictureUrl = this.cloudinaryImageService.getUploadedImageUrl(profilePicture);
             String faceResponse = getFaceCompare(idCardUrl, profilePictureUrl);
             JsonNode faceNode = objectMapper.readTree(faceResponse);
 

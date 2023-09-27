@@ -24,8 +24,10 @@ public class Product {
     private String name;
     private String description;
     private Double basePrice;
+    private Double perDayPrice;
     private String status;
     private Boolean isRestricted;
+    private String image;
 
     @ManyToOne
     @JoinColumn(name = "ownerId")
