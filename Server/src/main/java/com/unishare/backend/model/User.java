@@ -30,6 +30,7 @@ public class User implements UserDetails {
     private String email;
     private String address;
     private String OTP;
+    private String phoneNumber;
     private String passwordResetToken;
     private Double lat;
     private Double lng;

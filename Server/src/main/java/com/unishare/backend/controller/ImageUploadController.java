@@ -1,6 +1,5 @@
 package com.unishare.backend.controller;
 
-import com.amazonaws.services.simpleworkflow.flow.core.TryCatch;
 import com.unishare.backend.service.CloudinaryImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ public class ImageUploadController {
     @Autowired
     private CloudinaryImageService cloudinaryImageService;
 
+
     @PostMapping("/image")
     public ResponseEntity<Map> uploadImageToCloudinary(@RequestParam("image")MultipartFile file) {
         try {
@@ -26,6 +26,5 @@ public class ImageUploadController {
         catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
     }
 }

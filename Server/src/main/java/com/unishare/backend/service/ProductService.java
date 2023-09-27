@@ -3,6 +3,7 @@ package com.unishare.backend.service;
 import com.unishare.backend.DTO.Request.ProductRequest;
 import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.exceptionHandlers.CategoryNotFoundException;
+import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Booking;
@@ -14,6 +15,7 @@ import com.unishare.backend.repository.CategoryRepository;
 import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +26,14 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final CloudinaryImageService cloudinaryImageService;
 
     public ProductService(ProductRepository productRepository, UserRepository userRepository,
-                          CategoryRepository categoryRepository, BookingRepository bookingRepository) {
+                          CategoryRepository categoryRepository, CloudinaryImageService cloudinaryImageService) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.cloudinaryImageService = cloudinaryImageService;
     }
 
     public List<ProductResponse> getAllProducts() {
@@ -113,5 +117,26 @@ public class ProductService {
         response.setCategoryId(product.getCategory().getId());
         response.setBookingIds(bookingIds);
         return response;
+    }
+
+    public ProductResponse createProductWithImage(MultipartFile image, String name, String description, Double price, Long categoryId, Long ownerId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId));
+
+        Product product = new Product();
+        product.setName(name);
+        product.setDescription(description);
+        product.setBasePrice(price);
+        product.setStatus("Available");
+        product.setOwner(owner);
+        product.setCategory(category);
+
+        String imageUrl = cloudinaryImageService.getUploadedImageUrl(image);
+        product.setImage(imageUrl);
+
+        product = productRepository.save(product);
+        return convertToResponse(product);
     }
 }

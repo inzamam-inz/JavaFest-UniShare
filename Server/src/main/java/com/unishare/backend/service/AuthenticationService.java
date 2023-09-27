@@ -4,13 +4,12 @@ package com.unishare.backend.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
+import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.config.JwtService;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
-import com.unishare.backend.model.Token;
-import com.unishare.backend.model.TokenType;
-import com.unishare.backend.model.University;
-import com.unishare.backend.model.User;
+import com.unishare.backend.model.*;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -25,6 +24,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -40,27 +40,26 @@ public class AuthenticationService {
     private final MailSendingService mailSendingService;
     private final UserService userService;
     private final UniversityRepository universityRepository;
+    private final CloudinaryImageService cloudinaryImageService;
 
-    public void register(RegisterRequest request, String OTP) {
+    public UserResponse register(RegisterRequest request, String OTP) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ErrorMessageException("This email address have already an account.");
         }
-        //request.getUniversity()
-        Optional <University> a = universityRepository.findById(1L);
+
         var user = User.builder()
                 .fullName(request.getFullName())
                 .university(universityRepository.findById(request.getUniversity()).orElse(null))
-                .idCard(request.getIdCard())
-                .profilePicture(request.getProfilePicture())
                 .address(request.getAddress())
                 .lat(request.getLat())
                 .lng(request.getLng())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
                 .role(request.getRole())
                 .OTP(OTP)
                 .passwordResetToken(null)
-                .isVerified(request.getIsVerified())
+                .isVerified(false)
                 .isEmailVerified(false)
                 .isBlocked(false)
                 .build();
@@ -70,9 +69,15 @@ public class AuthenticationService {
         var refreshToken = jwtService.generateRefreshToken(savedUser);
         saveUserToken(savedUser, jwtToken);
 
+        UserResponse userResponse = userService.makeUserResponse(savedUser);
+
+        return userResponse;
+
         //return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
 
     }
+
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
@@ -85,10 +90,6 @@ public class AuthenticationService {
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
-
-        if (!user.getIsVerified()) {
-            throw new ErrorMessageException("Your Account is not verified. Please, verify first.");
-        }
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -223,5 +224,43 @@ public class AuthenticationService {
         else {
             throw new ErrorMessageException("Ops, Invalid token.");
         }
+    }
+
+    public UserResponse register(MultipartFile idCard, MultipartFile profilePicture, String fullName, String password, String email, String address, String phoneNumber, Double lat, Double lng, Long university, String otp) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new ErrorMessageException("This email address have already an account.");
+        }
+
+        Role role;
+        if (email.equals("bsse1113@iit.du.ac.bd")) role = Role.ADMIN;
+        else                                       role = Role.USER;
+
+        User user = User.builder()
+                .idCard(this.cloudinaryImageService.getUploadedImageUrl(idCard))
+                .profilePicture(this.cloudinaryImageService.getUploadedImageUrl(profilePicture))
+                .fullName(fullName)
+                .university(universityRepository.findById(university).orElse(null))
+                .address(address)
+                .lat(lat)
+                .lng(lng)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .phoneNumber(phoneNumber)
+                .role(role)
+                .OTP(otp)
+                .passwordResetToken(null)
+                .isVerified(false)
+                .isEmailVerified(false)
+                .isBlocked(false)
+                .build();
+
+        var savedUser = userRepository.save(user);
+        var jwtToken = jwtService.generateToken(savedUser);
+        //var refreshToken = jwtService.generateRefreshToken(savedUser);
+        saveUserToken(savedUser, jwtToken);
+
+        UserResponse userResponse = userService.makeUserResponse(savedUser);
+        //return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
+        return userResponse;
     }
 }

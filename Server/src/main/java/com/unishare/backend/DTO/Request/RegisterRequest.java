@@ -33,6 +33,9 @@ public class RegisterRequest {
     private String address;
     @NotNull
     @NotEmpty
+    private String phoneNumber;
+    @NotNull
+    @NotEmpty
     private Double lat;
     @NotNull
     @NotEmpty
@@ -43,7 +46,4 @@ public class RegisterRequest {
     @NotNull
     @NotEmpty
     private Role role;
-    @NotNull
-    @NotEmpty
-    private Boolean isVerified;
 }

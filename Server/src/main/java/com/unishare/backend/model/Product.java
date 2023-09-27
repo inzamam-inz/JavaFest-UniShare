@@ -26,6 +26,7 @@ public class Product {
     private Double basePrice;
     private String status;
     private Boolean isRestricted;
+    private String image;
 
     @ManyToOne
     @JoinColumn(name = "ownerId")
