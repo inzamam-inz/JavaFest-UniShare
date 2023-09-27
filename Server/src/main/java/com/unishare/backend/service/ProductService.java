@@ -116,6 +116,9 @@ public class ProductService {
         response.setOwnerId(product.getOwner().getId());
         response.setCategoryId(product.getCategory().getId());
         response.setBookingIds(bookingIds);
+        response.setImage(product.getImage());
+        response.setPerDayPrice(product.getPerDayPrice());
+
         return response;
     }
 

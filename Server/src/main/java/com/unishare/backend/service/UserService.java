@@ -2,6 +2,7 @@ package com.unishare.backend.service;
 
 import com.unishare.backend.DTO.Request.UserUpdateRequest;
 import com.unishare.backend.DTO.Response.UserResponse;
+import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.User;
 import com.unishare.backend.repository.UserRepository;
@@ -31,13 +32,13 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));
         return makeUserResponse(user);
     }
 
     public UserResponse userProfileUpdate(UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findByEmail(userUpdateRequest.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("Haven't any account with this email"));
+                .orElseThrow(() -> new ErrorMessageException("Haven't any account with this email"));
 
         user.setFullName(userUpdateRequest.getFullName());
         user.setProfilePicture(userUpdateRequest.getProfilePicture());
@@ -48,7 +49,7 @@ public class UserService {
 
     public UserResponse userBlockStatusUpdate(Long id, boolean isBlocked) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));
 
         user.setIsBlocked(isBlocked);
         user = userRepository.save(user);
@@ -58,7 +59,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));
 
         userRepository.delete(user);
     }

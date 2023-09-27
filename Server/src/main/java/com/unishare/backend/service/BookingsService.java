@@ -1,7 +1,7 @@
 package com.unishare.backend.service;
 
-import com.unishare.backend.DTO.Request.BookingsRequest;
-import com.unishare.backend.DTO.Response.BookingsResponse;
+import com.unishare.backend.DTO.Request.BookingRequest;
+import com.unishare.backend.DTO.Response.BookingResponse;
 import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
@@ -33,12 +33,12 @@ public class BookingsService {
         this.userRepository = userRepository;
     }
 
-    public List<BookingsResponse> getAllBookings() {
+    public List<BookingResponse> getAllBookings() {
         List<Booking> bookings = bookingRepository.findAll();
         return bookings.stream().map(this::convertToResponse).collect(Collectors.toList());
     }
 
-    public BookingsResponse getBookingById(Long id) {
+    public BookingResponse getBookingById(Long id) {
         Optional<Booking> bookingOptional = bookingRepository.findById(id);
         if (bookingOptional.isPresent()) {
             return convertToResponse(bookingOptional.get());
@@ -46,18 +46,18 @@ public class BookingsService {
         throw new RuntimeException("Booking not found with ID: " + id);
     }
 
-    public BookingsResponse createBooking(BookingsRequest bookingsRequest) {
+    public BookingResponse createBooking(BookingRequest bookingRequest) {
         Booking booking = new Booking();
-        booking.setRentFrom(bookingsRequest.getRentFrom());
-        booking.setRentTo(bookingsRequest.getRentTo());
-        booking.setConfirmationStatus(bookingsRequest.getConfirmationStatus());
+        booking.setRentFrom(bookingRequest.getRentFrom());
+        booking.setRentTo(bookingRequest.getRentTo());
+        booking.setConfirmationStatus(bookingRequest.getConfirmationStatus());
 
-        Product product = productRepository.findById(bookingsRequest.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingsRequest.getProductId()));
+        Product product = productRepository.findById(bookingRequest.getProductId())
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingRequest.getProductId()));
         booking.setProduct(product);
 
-        User borrower = userRepository.findById(bookingsRequest.getBorrowerId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + bookingsRequest.getBorrowerId()));
+        User borrower = userRepository.findById(bookingRequest.getBorrowerId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + bookingRequest.getBorrowerId()));
         booking.setBorrower(borrower);
 
         booking = bookingRepository.save(booking);
@@ -74,8 +74,8 @@ public class BookingsService {
         }
     }
 
-    private BookingsResponse convertToResponse(Booking booking) {
-        BookingsResponse response = new BookingsResponse();
+    private BookingResponse convertToResponse(Booking booking) {
+        BookingResponse response = new BookingResponse();
         response.setId(booking.getId());
         response.setRentFrom(booking.getRentFrom());
         response.setRentTo(booking.getRentTo());

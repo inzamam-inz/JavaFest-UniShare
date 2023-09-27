@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
-import com.unishare.backend.config.JwtService;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
-import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.*;
 
 import java.security.MessageDigest;
@@ -27,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -134,7 +131,7 @@ public class AuthenticationService {
             return;
         }
         refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
+        userEmail = jwtService.extractEmailFromBearerToken(refreshToken);
         if (userEmail != null) {
             var user = this.userRepository.findByEmail(userEmail)
                     .orElseThrow();

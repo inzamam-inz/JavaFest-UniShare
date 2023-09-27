@@ -44,7 +44,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping()
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest product) {
         try {
             ProductResponse createdProduct = productService.createProduct(product);
@@ -54,7 +54,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/image")
+    @PostMapping()
     public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImage(
             @RequestParam("image") MultipartFile image,
             @RequestParam("name") String name,
@@ -70,24 +70,26 @@ public class ProductController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }
-//    ) {
-//        try {
-//            List<ProductResponse> products = productService.searchProducts(product);
-//            return ResponseEntity.ok(new ApiResponse<>(products, null));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-//        }
-//    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
-        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
-        return ResponseEntity.ok(updatedProduct);
+    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
+        try {
+            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+            return updatedProduct != null
+                    ? ResponseEntity.ok(new ApiResponse<>(updatedProduct, null))
+                    : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>());
+        }
     }
 }
