@@ -2,6 +2,7 @@ package com.unishare.unishare.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.unishare.backend.service.UserService;
 import com.unishare.unishare.IntegrationTest;
 import com.unishare.unishare.domain.User;
 import com.unishare.unishare.repository.UserRepository;

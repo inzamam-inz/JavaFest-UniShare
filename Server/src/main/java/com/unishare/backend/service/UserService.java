@@ -15,9 +15,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     public UserResponse makeUserResponse(User user) {
@@ -62,6 +64,19 @@ public class UserService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));
 
         userRepository.delete(user);
+    }
+
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ErrorMessageException("User not found with email: " + email));
+        return makeUserResponse(user);
+    }
+
+    public UserResponse getUserByToken(String token) {
+        String email = jwtService.extractEmailFromBearerToken(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ErrorMessageException("User not found with token."));
+        return makeUserResponse(user);
     }
 
     // Add more service methods here as needed
