@@ -1,12 +1,6 @@
 package com.unishare.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,20 +8,21 @@ import java.util.List;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
+@Getter
+@Setter
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "_user")
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String idCard;
     private String profilePicture;
     private String fullName;
@@ -35,16 +30,20 @@ public class User implements UserDetails {
     private String email;
     private String address;
     private String OTP;
+    private String phoneNumber;
     private String passwordResetToken;
-    private Integer university;
-    private double lat;
-    private double lng;
-    private boolean isVerified;
-    private boolean isBlocked;
-
+    private Double lat;
+    private Double lng;
+    private Boolean isEmailVerified;
+    private Boolean isVerified;
+    private Boolean isBlocked;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @ManyToOne
+    @JoinColumn(name = "universityId")
+    private University university;
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens = new ArrayList<>();
@@ -52,8 +51,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "owner")
     private List<Product> products = new ArrayList<>();
 
-    @OneToMany(mappedBy = "borrower")
-    private List<Bookings> bookings = new ArrayList<>();
+//    @OneToMany(mappedBy = "borrower")
+//    private List<Bookings> bookings = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

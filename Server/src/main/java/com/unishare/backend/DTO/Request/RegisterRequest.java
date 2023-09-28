@@ -33,13 +33,16 @@ public class RegisterRequest {
     private String address;
     @NotNull
     @NotEmpty
-    private double lat;
+    private String phoneNumber;
     @NotNull
     @NotEmpty
-    private double lng;
+    private Double lat;
     @NotNull
     @NotEmpty
-    private Integer university;
+    private Double lng;
+    @NotNull
+    @NotEmpty
+    private Long university;
     @NotNull
     @NotEmpty
     private Role role;

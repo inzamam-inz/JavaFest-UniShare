@@ -17,6 +17,10 @@ const UserService = {
     return api.getAsync(`/users/${id}`);
   },
 
+  getCurrentUser: () => {
+    return api.getAsync("/users/me");
+  },
+
   delete: (id) => {
     return api.deleteAsync(`/users/${id}`);
   },

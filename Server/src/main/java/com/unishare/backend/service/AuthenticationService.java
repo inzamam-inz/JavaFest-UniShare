@@ -4,16 +4,15 @@ package com.unishare.backend.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
-import com.unishare.backend.config.JwtService;
+import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
-import com.unishare.backend.exceptionHandlers.UserNotFoundException;
-import com.unishare.backend.model.Token;
-import com.unishare.backend.model.TokenType;
-import com.unishare.backend.model.User;
+import com.unishare.backend.model.*;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import com.unishare.backend.repository.TokenRepository;
+import com.unishare.backend.repository.UniversityRepository;
 import com.unishare.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -36,26 +36,28 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final MailSendingService mailSendingService;
     private final UserService userService;
+    private final UniversityRepository universityRepository;
+    private final CloudinaryImageService cloudinaryImageService;
 
-    public void register(RegisterRequest request, String OTP) {
+    public UserResponse register(RegisterRequest request, String OTP) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ErrorMessageException("This email address have already an account.");
         }
 
         var user = User.builder()
                 .fullName(request.getFullName())
-                .university(request.getUniversity())
-                .idCard(request.getIdCard())
-                .profilePicture(request.getProfilePicture())
+                .university(universityRepository.findById(request.getUniversity()).orElse(null))
                 .address(request.getAddress())
                 .lat(request.getLat())
                 .lng(request.getLng())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
                 .role(request.getRole())
                 .OTP(OTP)
                 .passwordResetToken(null)
                 .isVerified(false)
+                .isEmailVerified(false)
                 .isBlocked(false)
                 .build();
 
@@ -63,10 +65,12 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
         saveUserToken(savedUser, jwtToken);
+        UserResponse userResponse = userService.makeUserResponse(savedUser);
 
-        //return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
-
+        return userResponse;
     }
+
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
@@ -76,13 +80,8 @@ public class AuthenticationService {
                 )
         );
 
-
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
-
-        if (!user.isVerified()) {
-            throw new ErrorMessageException("Your Account is not verified. Please, verify first.");
-        }
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -127,7 +126,7 @@ public class AuthenticationService {
             return;
         }
         refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
+        userEmail = jwtService.extractEmailFromBearerToken(refreshToken);
         if (userEmail != null) {
             var user = this.userRepository.findByEmail(userEmail)
                     .orElseThrow();
@@ -148,17 +147,14 @@ public class AuthenticationService {
         final int CODE_LENGTH = 10;
 
         try {
-            // Generate a random verification code
             SecureRandom secureRandom = new SecureRandom();
             byte[] randomBytes = new byte[CODE_LENGTH];
             secureRandom.nextBytes(randomBytes);
             String verificationCode = bytesToHex(randomBytes);
 
-            // Hash the verification code using SHA-256
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = messageDigest.digest(verificationCode.getBytes());
 
-            // Convert the hashed bytes to a hexadecimal string
             return bytesToHex(hashedBytes);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -174,16 +170,16 @@ public class AuthenticationService {
         return hexStringBuilder.toString();
     }
 
-    public void verification(UserVerificationRequest request) {
+    public void emailVerification(UserVerificationRequest request) {
         User user = this.userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
-        if (user.isVerified()) {
+        if (user.getIsEmailVerified()) {
             throw new ErrorMessageException("Your account is already verified.");
         }
 
         boolean verified = user.getOTP().equals(request.getOTP());
         if (verified) {
-            user.setVerified(true);
+            user.setIsEmailVerified(true);
             userRepository.save(user);
         }
         else {
@@ -191,7 +187,7 @@ public class AuthenticationService {
         }
     }
 
-    public void sendResetToken(SendResetTokenRequest request, String token) {
+    public void sendResetToken(SendEmailVerificationCodeRequest request, String token) {
         User user = this.userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
 
@@ -217,5 +213,59 @@ public class AuthenticationService {
         else {
             throw new ErrorMessageException("Ops, Invalid token.");
         }
+    }
+
+    public UserResponse register(MultipartFile idCard, MultipartFile profilePicture, String fullName, String password, String email, String address, String phoneNumber, Double lat, Double lng, Long university, String otp) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new ErrorMessageException("This email address have already an account.");
+        }
+
+        if (universityRepository.findById(university).isEmpty()) {
+            throw new ErrorMessageException("University is not found.");
+        }
+
+        Role role;
+        if (email.equals("bsse1113@iit.du.ac.bd")) role = Role.ADMIN;
+        else                                       role = Role.USER;
+
+        User user = User.builder()
+                .idCard(this.cloudinaryImageService.getUploadedImageUrl(idCard))
+                .profilePicture(this.cloudinaryImageService.getUploadedImageUrl(profilePicture))
+                .fullName(fullName)
+                .university(universityRepository.findById(university).orElse(null))
+                .address(address)
+                .lat(lat)
+                .lng(lng)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .phoneNumber(phoneNumber)
+                .role(role)
+                .OTP(otp)
+                .passwordResetToken(null)
+                .isVerified(false)
+                .isEmailVerified(false)
+                .isBlocked(false)
+                .build();
+
+        var savedUser = userRepository.save(user);
+        var jwtToken = jwtService.generateToken(savedUser);
+        //var refreshToken = jwtService.generateRefreshToken(savedUser);
+        saveUserToken(savedUser, jwtToken);
+
+        UserResponse userResponse = userService.makeUserResponse(savedUser);
+        //return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
+        return userResponse;
+    }
+
+    public void sendEmailVerificationCode(String request) {
+        String email = jwtService.extractEmailFromBearerToken(request);
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
+        if (user.getIsEmailVerified()) {
+            throw new ErrorMessageException("Email is already verified.");
+        }
+
+        String OTP = user.getOTP();
+        mailSendingService.sendOTPMail(email, OTP);
     }
 }

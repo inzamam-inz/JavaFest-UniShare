@@ -1,15 +1,15 @@
 package com.unishare.backend.service;
 
-import com.unishare.backend.DTO.Request.BookingsRequest;
-import com.unishare.backend.DTO.Response.BookingsResponse;
+import com.unishare.backend.DTO.Request.BookingRequest;
+import com.unishare.backend.DTO.Response.BookingResponse;
 import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
-import com.unishare.backend.model.Bookings;
+import com.unishare.backend.model.Booking;
 import com.unishare.backend.model.Product;
 import com.unishare.backend.model.User;
-import com.unishare.backend.repository.BookingsRepository;
+import com.unishare.backend.repository.BookingRepository;
 import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,79 +22,81 @@ import java.util.stream.Collectors;
 @Service
 public class BookingsService {
 
-    private final BookingsRepository bookingsRepository;
+    private final BookingRepository bookingRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public BookingsService(BookingsRepository bookingsRepository, ProductRepository productRepository, UserRepository userRepository) {
-        this.bookingsRepository = bookingsRepository;
+    public BookingsService(BookingRepository bookingRepository, ProductRepository productRepository, UserRepository userRepository, UserService userService) {
+        this.bookingRepository = bookingRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
-    public List<BookingsResponse> getAllBookings() {
-        List<Bookings> bookings = bookingsRepository.findAll();
+    public List<BookingResponse> getAllBookings() {
+        List<Booking> bookings = bookingRepository.findAll();
         return bookings.stream().map(this::convertToResponse).collect(Collectors.toList());
     }
 
-    public BookingsResponse getBookingById(Integer id) {
-        Optional<Bookings> bookingOptional = bookingsRepository.findById(id);
+    public BookingResponse getBookingById(Long id) {
+        Optional<Booking> bookingOptional = bookingRepository.findById(id);
         if (bookingOptional.isPresent()) {
             return convertToResponse(bookingOptional.get());
         }
         throw new RuntimeException("Booking not found with ID: " + id);
     }
 
-    public BookingsResponse createBooking(BookingsRequest bookingsRequest) {
-        Bookings booking = new Bookings();
-        booking.setRentFrom(bookingsRequest.getRentFrom());
-        booking.setRentTo(bookingsRequest.getRentTo());
-        booking.setConfirmationStatus(bookingsRequest.getConfirmationStatus());
+    public BookingResponse createBooking(BookingRequest bookingRequest) {
+        Booking booking = new Booking();
+        booking.setRentFrom(bookingRequest.getRentFrom());
+        booking.setRentTo(bookingRequest.getRentTo());
+        booking.setConfirmationStatus(bookingRequest.getConfirmationStatus());
 
-        Product product = productRepository.findById(bookingsRequest.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingsRequest.getProductId()));
+        Product product = productRepository.findById(bookingRequest.getProductId())
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingRequest.getProductId()));
         booking.setProduct(product);
 
-        User borrower = userRepository.findById(bookingsRequest.getBorrowerId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + bookingsRequest.getBorrowerId()));
+        User borrower = userRepository.findById(bookingRequest.getBorrowerId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + bookingRequest.getBorrowerId()));
         booking.setBorrower(borrower);
 
-        booking = bookingsRepository.save(booking);
+        booking = bookingRepository.save(booking);
         return convertToResponse(booking);
     }
 
-    public void deleteBooking(Integer id) {
-        Optional<Bookings> bookingOptional = bookingsRepository.findById(id);
+    public void deleteBooking(Long id) {
+        Optional<Booking> bookingOptional = bookingRepository.findById(id);
         if (bookingOptional.isPresent()) {
-            Bookings booking = bookingOptional.get();
-            bookingsRepository.delete(booking);
+            Booking booking = bookingOptional.get();
+            bookingRepository.delete(booking);
         } else {
             throw new RuntimeException("Booking not found with ID: " + id);
         }
     }
 
-    private BookingsResponse convertToResponse(Bookings booking) {
-        BookingsResponse response = new BookingsResponse();
+    private BookingResponse convertToResponse(Booking booking) {
+        BookingResponse response = new BookingResponse();
         response.setId(booking.getId());
         response.setRentFrom(booking.getRentFrom());
         response.setRentTo(booking.getRentTo());
         response.setConfirmationStatus(booking.getConfirmationStatus());
         response.setProductResponse(convertProductToResponse(booking.getProduct()));
-        response.setBorrower(new UserResponse(booking.getBorrower().getId(), booking.getBorrower().getFullName(), booking.getBorrower().getEmail(), booking.getBorrower().getProfilePicture(), booking.getBorrower().isVerified(), booking.getBorrower().isBlocked()));
+        response.setBorrower(userService.makeUserResponse(booking.getBorrower()));
         return response;
     }
 
     private ProductResponse convertProductToResponse(Product product) {
-        List<Integer> bookingIds = product.getBookings().stream()
-                .map(Bookings::getId)
+        List<Long> bookingIds = product.getBookings().stream()
+                .map(Booking::getId)
                 .collect(Collectors.toList());
 
         ProductResponse response = new ProductResponse();
         response.setProductId(product.getId());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
-        response.setBaseprice(product.getBaseprice());
+        response.setBasePrice(product.getBasePrice());
         response.setStatus(product.getStatus());
         response.setOwnerId(product.getOwner().getId());
         response.setCategoryId(product.getCategory().getId());

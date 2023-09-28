@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Define the initial state for the user slice
 const initialState = {
-  isAuthenticated: true, // You can initialize this to false
+  isAuthenticated: false, // You can initialize this to false
   currentUser: null,
   users: null,
 };
@@ -30,10 +30,19 @@ const userSlice = createSlice({
     deleteUsers: (state, action) => {
       state.users = [];
     },
+    setIsAuthenticated: (state, action) => {
+      state.isAuthenticated = action.payload;
+    },
   },
 });
 
 // Export the actions and reducer
-export const { setUser, updateUser, deleteUser, setUsers, deleteUsers } =
-  userSlice.actions;
+export const {
+  setUser,
+  updateUser,
+  deleteUser,
+  setUsers,
+  deleteUsers,
+  setIsAuthenticated,
+} = userSlice.actions;
 export default userSlice.reducer;

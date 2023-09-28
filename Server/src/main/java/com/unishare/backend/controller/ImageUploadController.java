@@ -11,14 +11,20 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/api/uploads")
 public class ImageUploadController {
     @Autowired
     private CloudinaryImageService cloudinaryImageService;
 
+
     @PostMapping("/image")
-    public ResponseEntity <Map> uploadImageToCloudinary(@RequestParam("image")MultipartFile file) {
-        Map response = this.cloudinaryImageService.imageUpload(file);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<Map> uploadImageToCloudinary(@RequestParam("image")MultipartFile file) {
+        try {
+            Map response = this.cloudinaryImageService.imageUpload(file);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

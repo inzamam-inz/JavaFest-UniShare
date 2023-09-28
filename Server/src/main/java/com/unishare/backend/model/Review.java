@@ -1,12 +1,13 @@
 package com.unishare.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.awt.print.Book;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,9 +15,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 public class Review {
-
     @Id
-    @GeneratedValue
-    private Integer id;
-    private String name;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String comment;
+    private Double rating;
+
+    @OneToOne
+    @JoinColumn(name = "bookingId")
+    private Booking booking;
+
+    @OneToOne
+    @JoinColumn(name = "reviewerId")
+    private User reviewer;
+
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "reviewer_id")
+//    public User reviewer;
 }

@@ -1,6 +1,5 @@
 package com.unishare.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,15 +13,19 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Bookings {
+public class Booking {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     private Date rentFrom;
     private Date rentTo;
     private String confirmationStatus;
+
+    @OneToOne()
+    @JoinColumn(name = "reviewId")
+    private Review review;
 
 //    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

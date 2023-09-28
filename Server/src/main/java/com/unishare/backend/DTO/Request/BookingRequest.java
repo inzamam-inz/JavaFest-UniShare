@@ -1,21 +1,21 @@
-package com.unishare.backend.DTO.Response;
+package com.unishare.backend.DTO.Request;
 
-import com.unishare.backend.model.Product;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingsResponse {
-    private Integer id;
+public class BookingRequest {
     private Date rentFrom;
     private Date rentTo;
     private String confirmationStatus;
-    private ProductResponse productResponse;
-    private UserResponse borrower;
+    private Long productId;
+    private Long borrowerId;
+
 }

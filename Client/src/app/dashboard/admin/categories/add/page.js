@@ -14,13 +14,13 @@ const Page = () => {
 
   //form for add new category
 
-  const [name, setName] = useState("");
+  const [categoryName, setName] = useState("");
   const [description, setDescription] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const category = {
-      name,
+      categoryName: categoryName,
       description,
     };
     CategoryService.create(category)
@@ -92,7 +92,7 @@ const Page = () => {
                 id="grid-name"
                 type="text"
                 placeholder="Name"
-                value={name}
+                value={categoryName}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>

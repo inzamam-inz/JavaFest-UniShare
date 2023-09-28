@@ -1,15 +1,15 @@
-package com.unishare.backend.DTO;
+package com.unishare.backend.DTO.Response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-    private Integer id;
-    private String fullName;
-    private String email;
+public class IdVerificationResponse {
+    private String idCardUrl;
     private String profilePictureUrl;
 }

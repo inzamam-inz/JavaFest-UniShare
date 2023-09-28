@@ -33,7 +33,7 @@ const Page = () => {
         description={`Total ${users && users.length} users`}
       />
       <CommonTable
-        columns={["id", "fullName", "email", "profilePictureUrl"]}
+        columns={["id", "fullName", "email", "profilePicture"]}
         data={
           users &&
           users.map((item) => {
@@ -41,7 +41,7 @@ const Page = () => {
               id: item.id,
               fullName: item.fullName,
               email: item.email,
-              profilePictureUrl: item.profilePictureUrl,
+              profilePicture: item.profilePicture,
             };
           })
         }

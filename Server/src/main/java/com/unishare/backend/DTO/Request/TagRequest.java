@@ -1,5 +1,4 @@
-package com.unishare.backend.DTO;
-
+package com.unishare.backend.DTO.Request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,8 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryRequest {
-
-    private String name;
-    private String description;
+public class TagRequest {
+    private String tagName;
 }
