@@ -11,7 +11,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/api/uploads")
 public class ImageUploadController {
     @Autowired
     private CloudinaryImageService cloudinaryImageService;

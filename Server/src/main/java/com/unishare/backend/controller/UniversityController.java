@@ -14,7 +14,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/api/university")
+@RequestMapping("/api/universities")
 public class UniversityController {
 
     private final UniversityService universityService;
@@ -27,7 +27,6 @@ public class UniversityController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public ResponseEntity<ApiResponse<List<UniversityResponse>>> getAllUniversities() {
         try {
             List<UniversityResponse> universityResponses = universityService.getAllUniversities();
@@ -38,7 +37,6 @@ public class UniversityController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public ResponseEntity<ApiResponse<UniversityResponse>> getUniversityById(@PathVariable Long id) {
         try {
             UniversityResponse universityResponse = universityService.getUniversityById(id);
@@ -51,6 +49,16 @@ public class UniversityController {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<UniversityResponse>> createUniversity(@RequestHeader("Authorization") String userAgent, @RequestBody UniversityRequest university) {
+        try {
+            UniversityResponse createdUniversityResponse = universityService.createUniversity(university.getUniversityName());
+            return ResponseEntity.ok(new ApiResponse<>(createdUniversityResponse, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/demo")
+    public ResponseEntity<ApiResponse<UniversityResponse>> createUniversity(@RequestBody UniversityRequest university) {
         try {
             UniversityResponse createdUniversityResponse = universityService.createUniversity(university.getUniversityName());
             return ResponseEntity.ok(new ApiResponse<>(createdUniversityResponse, null));
