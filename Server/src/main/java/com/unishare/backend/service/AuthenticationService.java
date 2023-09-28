@@ -220,6 +220,10 @@ public class AuthenticationService {
             throw new ErrorMessageException("This email address have already an account.");
         }
 
+        if (universityRepository.findById(university).isEmpty()) {
+            throw new ErrorMessageException("University is not found.");
+        }
+
         Role role;
         if (email.equals("bsse1113@iit.du.ac.bd")) role = Role.ADMIN;
         else                                       role = Role.USER;

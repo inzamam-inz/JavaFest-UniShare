@@ -25,12 +25,14 @@ public class BookingsService {
     private final BookingRepository bookingRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public BookingsService(BookingRepository bookingRepository, ProductRepository productRepository, UserRepository userRepository) {
+    public BookingsService(BookingRepository bookingRepository, ProductRepository productRepository, UserRepository userRepository, UserService userService) {
         this.bookingRepository = bookingRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public List<BookingResponse> getAllBookings() {
@@ -81,7 +83,7 @@ public class BookingsService {
         response.setRentTo(booking.getRentTo());
         response.setConfirmationStatus(booking.getConfirmationStatus());
         response.setProductResponse(convertProductToResponse(booking.getProduct()));
-        response.setBorrower(new UserResponse(booking.getBorrower().getId(), booking.getBorrower().getFullName(), booking.getBorrower().getEmail(), booking.getBorrower().getProfilePicture(), booking.getBorrower().getIsEmailVerified(), booking.getBorrower().getIsVerified(), booking.getBorrower().getIsBlocked()));
+        response.setBorrower(userService.makeUserResponse(booking.getBorrower()));
         return response;
     }
 

@@ -93,4 +93,74 @@ public class ProductController {
             return ResponseEntity.badRequest().body(new ApiResponse<>());
         }
     }
+
+    @GetMapping("/category/{id}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategoryId(@PathVariable Long id) {
+        try {
+            List<ProductResponse> products = productService.getProductsByCategoryId(id);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/owner/{id}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByOwnerId(@PathVariable Long id) {
+        try {
+            List<ProductResponse> products = productService.getProductsByOwnerId(id);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByStatus(@PathVariable String status) {
+        try {
+            List<ProductResponse> products = productService.getProductsByStatus(status);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/owner/{id}/category/{categoryId}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByOwnerIdAndCategoryId(@PathVariable Long id, @PathVariable Long categoryId) {
+        try {
+            List<ProductResponse> products = productService.getProductsByOwnerIdAndCategoryId(id, categoryId);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/owner/{id}/status/{status}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByOwnerIdAndStatus(@PathVariable Long id, @PathVariable String status) {
+        try {
+            List<ProductResponse> products = productService.getProductsByOwnerIdAndStatus(id, status);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/owner/{id}/category/{categoryId}/status/{status}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByOwnerIdAndStatusAndCategoryId(@PathVariable Long id, @PathVariable String status, @PathVariable Long categoryId) {
+        try {
+            List<ProductResponse> products = productService.getProductsByOwnerIdAndStatusAndCategoryId(id, status, categoryId);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/category/{categoryId}/status/{status}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategoryIdAndStatus(@PathVariable Long categoryId, @PathVariable String status) {
+        try {
+            List<ProductResponse> products = productService.getProductsByCategoryIdAndStatus(categoryId, status);
+            return ResponseEntity.ok(new ApiResponse<>(products, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
 }

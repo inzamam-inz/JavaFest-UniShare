@@ -144,4 +144,62 @@ public class ProductService {
         product = productRepository.save(product);
         return convertToResponse(product);
     }
+
+    public List<ProductResponse> getProductsByCategoryId(Long id) {
+        List<Product> products = productRepository.findAllByCategoryId(id);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByOwnerId(Long id) {
+        List<Product> products = productRepository.findAllByOwnerId(id);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByOwnerIdAndStatus(Long id, String status) {
+        List<Product> products = productRepository.findAllByOwnerIdAndStatus(id, status);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByOwnerIdAndStatusAndCategoryId(Long id, String status, Long categoryId) {
+        List<Product> products = productRepository.findAllByOwnerIdAndStatusAndCategoryId(id, status, categoryId);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByOwnerIdAndCategoryId(Long id, Long categoryId) {
+        List<Product> products = productRepository.findAllByOwnerIdAndCategoryId(id, categoryId);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByStatus(String status) {
+        List<Product> products = productRepository.findAllByStatus(status);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByCategoryIdAndStatus(Long categoryId, String status) {
+        List<Product> products = productRepository.findAllByCategoryIdAndStatus(categoryId, status);
+        return products.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+//    public List<ProductResponse> getProductsByCategoryIdAndDayCount(Long categoryId, int dayCount, String status) {
+//        List<ProductResponse> productResponses = this.
+//        for (ProductResponse productResponse : productResponses) {
+//
+//        }
+//        return productResponses;
+//    }
+
 }

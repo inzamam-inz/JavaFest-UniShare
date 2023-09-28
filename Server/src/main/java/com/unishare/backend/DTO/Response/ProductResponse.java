@@ -18,6 +18,8 @@ public class ProductResponse {
     private Double perDayPrice;
     private String image;
     private String status;
+    private Double totalPrice;
+    private Double rating;
 
     private Long ownerId;
     private Long categoryId;
