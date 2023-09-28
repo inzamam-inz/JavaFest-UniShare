@@ -99,8 +99,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getMe(@RequestHeader("Authorization") String token) {
         try {
-            UserResponse user = userService.getUserByToken(token);
-            return ResponseEntity.ok(new ApiResponse<>(user, null));
+            UserResponse userResponse = userService.getUserResponseByToken(token);
+            return ResponseEntity.ok(new ApiResponse<>(userResponse, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }

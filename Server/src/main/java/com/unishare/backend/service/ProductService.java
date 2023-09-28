@@ -27,13 +27,15 @@ public class ProductService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CloudinaryImageService cloudinaryImageService;
+    private final UserService userService;
 
     public ProductService(ProductRepository productRepository, UserRepository userRepository,
-                          CategoryRepository categoryRepository, CloudinaryImageService cloudinaryImageService) {
+                          CategoryRepository categoryRepository, CloudinaryImageService cloudinaryImageService, UserService userService) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.cloudinaryImageService = cloudinaryImageService;
+        this.userService = userService;
     }
 
     public List<ProductResponse> getAllProducts() {
@@ -122,16 +124,16 @@ public class ProductService {
         return response;
     }
 
-    public ProductResponse createProductWithImage(MultipartFile image, String name, String description, Double price, Long categoryId, Long ownerId) {
+    public ProductResponse createProductWithImage(MultipartFile image, String name, String description, Double price, Double perDay, Long categoryId, String token) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId));
+        User owner = userService.getUserByToken(token);
 
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);
         product.setBasePrice(price);
+        product.setPerDayPrice(perDay);
         product.setStatus("Available");
         product.setOwner(owner);
         product.setCategory(category);

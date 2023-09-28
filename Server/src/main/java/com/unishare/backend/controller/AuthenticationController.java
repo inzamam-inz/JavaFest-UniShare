@@ -1,19 +1,15 @@
 package com.unishare.backend.controller;
 
-import com.cloudinary.Api;
 import com.unishare.backend.DTO.ApiResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
-import com.unishare.backend.model.User;
 import com.unishare.backend.repository.UserRepository;
 import com.unishare.backend.service.AuthenticationService;
 import com.unishare.backend.service.MailSendingService;
-import com.unishare.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,6 +75,17 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
 
+    @PostMapping("email-verification-otp")
+    public ResponseEntity<ApiResponse<String>> emailVerificationOTP(@RequestHeader("Authorization") String token) {
+        try {
+            service.sendEmailVerificationCode(token);
+            return ResponseEntity.ok(new ApiResponse<>("Email verification code is successfully sent.", null));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
     @PostMapping("/email-verification")
     public ResponseEntity<ApiResponse<String>> emailVerification(@RequestBody UserVerificationRequest userVerificationRequest) {
         try {
@@ -91,7 +98,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/send-password-reset-token")
-    public ResponseEntity<ApiResponse<String>> sendPasswordResetToken(@RequestBody SendResetTokenRequest sendResetTokenRequest) {
+    public ResponseEntity<ApiResponse<String>> sendPasswordResetToken(@RequestBody SendEmailVerificationCodeRequest sendResetTokenRequest) {
         String resetPasswordToken = service.generateHashedVerificationCode();
         try {
             service.sendResetToken(sendResetTokenRequest, resetPasswordToken);
