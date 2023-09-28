@@ -2,23 +2,23 @@ import api from "../api";
 
 const UniversityService = {
   getAll: () => {
-    return api.getAsync("/universities");
+    return api.getAsync("/university");
   },
 
   create: (university) => {
-    return api.postAsync("/universities", university);
+    return api.postAsync("/university", university);
   },
 
   update: (university) => {
-    return api.putAsync(`/universities/${university.id}`, university);
+    return api.putAsync(`/university/${university.id}`, university);
   },
 
   getOne: (id) => {
-    return api.getAsync(`/universities/${id}`);
+    return api.getAsync(`/university/${id}`);
   },
 
   delete: (id) => {
-    return api.deleteAsync(`/universities/${id}`);
+    return api.deleteAsync(`/university/${id}`);
   },
 };
 

@@ -29,6 +29,14 @@ const AuthService = {
   imageUpload: (data) => {
     return api.postAsync(`/upload/image`, data);
   },
+
+  forgetPassword: (data) => {
+    return api.postAsync(`/auth/send-password-reset-token`, data);
+  },
+
+  resetPassword: (data) => {
+    return api.postAsync(`/auth/password-reset`, data);
+  },
 };
 
 export default AuthService;

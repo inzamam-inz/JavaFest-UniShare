@@ -23,4 +23,5 @@ const universitySlice = createSlice({
 
 export const { setUniversity, updateUniversity, deleteUniversity } =
   universitySlice.actions;
+
 export default universitySlice.reducer;

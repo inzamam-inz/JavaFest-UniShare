@@ -1,6 +1,9 @@
 "use client";
+import AuthService from "@/lib/services/authService";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const Page = () => {
   const [formData, setFormData] = useState({
@@ -9,16 +12,44 @@ const Page = () => {
     newPassword: "",
     confirmPassword: "",
   });
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleResetPassword = (e) => {
+    e.preventDefault();
+    const data = {
+      email: formData.email,
+      passwordResetToken: formData.token,
+      newPassword: formData.newPassword,
+    };
+    AuthService.resetPassword(data)
+
+      .then((res) => {
+        toast.success("Password reset successfully");
+        router.push("/login");
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission with formData
-    console.log(formData);
+    const data = {
+      email: formData.email,
+    };
+    AuthService.forgetPassword(data)
+      .then((res) => {
+        toast.success("Email sent successfully");
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
   };
 
   return (
@@ -54,15 +85,14 @@ const Page = () => {
               />
             </label>
             <div className=" w-1/3 px-2">
-              <button className="w-full py-3 font-medium text-white bg-gray-800 hover:bg-indigo-500 rounded-lg border-indigo-500 hover:shadow inline-flex space-x-2 items-center justify-center">
-                <span>Send Email</span>
+              <button
+                onClick={handleSubmit}
+                className=" h-10 w-full py-3 mt-1 font-medium  text-white bg-gray-800 hover:bg-indigo-500 rounded-lg border-indigo-500 hover:shadow inline-flex space-x-2 items-center justify-center"
+              >
+                <span>Send OTP</span>
               </button>
             </div>
           </div>
-          <hr />
-          <p className="text-center">Or</p>
-          <hr />
-          {/* or enter token , new password , and confirm password */}
           <label htmlFor="token">
             <p className="font-medium text-slate-700 pb-2">Token</p>
             <input
@@ -100,7 +130,10 @@ const Page = () => {
             />
           </label>
           {/* reset button*/}
-          <button className="w-full py-3 font-medium text-white bg-gray-800 hover:bg-indigo-500 rounded-lg border-indigo-500 hover:shadow inline-flex space-x-2 items-center justify-center">
+          <button
+            onClick={handleResetPassword}
+            className="w-full py-3 font-medium text-white bg-gray-800 hover:bg-indigo-500 rounded-lg border-indigo-500 hover:shadow inline-flex space-x-2 items-center justify-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

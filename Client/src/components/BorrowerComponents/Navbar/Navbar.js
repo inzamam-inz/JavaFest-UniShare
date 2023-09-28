@@ -3,7 +3,6 @@ import { Popover } from "@headlessui/react";
 import {
   Bars3Icon,
   BellAlertIcon,
-  QuestionMarkCircleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Tooltip } from "@material-tailwind/react";
@@ -69,7 +68,10 @@ const Navbar = () => {
                 <div className="flex h-16 items-center justify-between">
                   {/* Logo (lg+) */}
                   <div className="hidden lg:flex lg:flex-1 lg:items-center">
-                    <a href="#" className=" flex items-center">
+                    <Link
+                      href="/dashboard/storefront/home"
+                      className=" flex items-center"
+                    >
                       <img
                         className="h-10 w-auto"
                         src="https://res.cloudinary.com/unishare/image/upload/v1694949615/Logo/Unishare_Logo.png"
@@ -78,7 +80,7 @@ const Navbar = () => {
                       <h2 className=" text-2xl font-bold tracking-tight text-white ml-2">
                         UniShare
                       </h2>
-                    </a>
+                    </Link>
                   </div>
 
                   <div className="hidden h-full lg:flex">
@@ -113,25 +115,22 @@ const Navbar = () => {
                   </div>
 
                   {/* Logo (lg-) */}
-                  <a href="#" className="lg:hidden">
-                    <span className="sr-only">Your Company</span>
+                  <Link
+                    href="/dashboard/storefront/home"
+                    className=" flex items-center lg:hidden"
+                  >
                     <img
-                      src="https://tailwindui.com/img/logos/mark.svg?color=white"
-                      alt=""
-                      className="h-8 w-auto"
+                      className="h-10 w-auto"
+                      src="https://res.cloudinary.com/unishare/image/upload/v1694949615/Logo/Unishare_Logo.png"
+                      alt="UniShare"
                     />
-                  </a>
+                    <h2 className=" text-2xl font-bold tracking-tight text-white ml-2">
+                      UniShare
+                    </h2>
+                  </Link>
 
                   <div className="flex flex-1 items-center justify-end">
                     <div className="flex items-center lg:ml-8">
-                      {/* Help */}
-                      <a href="#" className="p-2 text-white lg:hidden">
-                        <span className="sr-only">Help</span>
-                        <QuestionMarkCircleIcon
-                          className="h-6 w-6"
-                          aria-hidden="true"
-                        />
-                      </a>
                       {/* Owner Dashboard button, white background */}
                       {isAuthenticated && (
                         <Link

@@ -63,13 +63,13 @@ const Page = () => {
         ]}
       />
       <CommonTable
-        columns={["id", "name", "description"]}
+        columns={["id", "categoryName", "description"]}
         data={
           category &&
           category.map((item) => {
             return {
               id: item.id,
-              name: item.name,
+              categoryName: item.categoryName,
               description: item.description,
             };
           })
