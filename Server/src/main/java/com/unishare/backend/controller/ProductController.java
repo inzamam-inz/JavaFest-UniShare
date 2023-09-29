@@ -61,11 +61,11 @@ public class ProductController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("price") Double price,
-            @RequestParam("perDay") Double perDay,
+            @RequestParam("perDayPrice") Double perDayPrice,
             @RequestParam("categoryId") Long categoryId
     ) {
         try {
-            ProductResponse createdProduct = productService.createProductWithImage(image, name, description, price, perDay, categoryId, token);
+            ProductResponse createdProduct = productService.createProductWithImage(image, name, description, price, perDayPrice, categoryId, token);
             return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
@@ -163,4 +163,6 @@ public class ProductController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }
+
+    
 }

@@ -17,7 +17,9 @@ import com.unishare.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -77,6 +79,7 @@ public class ProductService {
             product.setName(productRequest.getName());
             product.setDescription(productRequest.getDescription());
             product.setBasePrice(productRequest.getBasePrice());
+            product.setPerDayPrice(productRequest.getPerDayPrice());
             product.setStatus(productRequest.getStatus());
 
             User owner = userRepository.findById(productRequest.getOwnerId())
@@ -104,7 +107,37 @@ public class ProductService {
         }
     }
 
-    private ProductResponse convertToResponse(Product product) {
+    private Double getTotalPrice(Product product, int dayCount) {
+        return product.getBasePrice() + product.getPerDayPrice() * dayCount;
+    }
+
+    private Double getTotalPrice(Product product) {
+        return product.getBasePrice() + product.getPerDayPrice();
+    }
+
+    private Double getRating(Product product) {
+        List<Booking> bookings = product.getBookings();
+        Double totalRating = 0.0;
+        for (Booking booking : bookings) {
+            if (Objects.nonNull(booking.getReview()) && Objects.nonNull(booking.getReview().getRating())) {
+                totalRating += booking.getReview().getRating();
+            }
+        }
+        return totalRating / bookings.size();
+    }
+
+    private Integer getRatingCount(Product product) {
+        List<Booking> bookings = product.getBookings();
+        Integer ratingCount = 0;
+        for (Booking booking : bookings) {
+            if (Objects.nonNull(booking.getReview()) && Objects.nonNull(booking.getReview().getRating())) {
+                ratingCount++;
+            }
+        }
+        return ratingCount;
+    }
+
+    private ProductResponse convertToResponseHelp(Product product) {
         List<Long> bookingIds = product.getBookings().stream()
                 .map(Booking::getId)
                 .collect(Collectors.toList());
@@ -124,7 +157,34 @@ public class ProductService {
         return response;
     }
 
-    public ProductResponse createProductWithImage(MultipartFile image, String name, String description, Double price, Double perDay, Long categoryId, String token) {
+
+    private ProductResponse convertToResponse(Product product) {
+        List<Long> bookingIds = product.getBookings().stream()
+                .map(Booking::getId)
+                .collect(Collectors.toList());
+
+        ProductResponse response = convertToResponseHelp(product);
+        response.setRating(getRating(product));
+        response.setRatingCount(getRatingCount(product));
+        response.setTotalPrice(getTotalPrice(product));
+
+        return response;
+    }
+
+    private ProductResponse convertToResponse(Product product, int dayCount) {
+        List<Long> bookingIds = product.getBookings().stream()
+                .map(Booking::getId)
+                .collect(Collectors.toList());
+
+        ProductResponse response = convertToResponseHelp(product);
+        response.setRating(getRating(product));
+        response.setRatingCount(getRatingCount(product));
+        response.setTotalPrice(getTotalPrice(product, dayCount));
+
+        return response;
+    }
+
+    public ProductResponse createProductWithImage(MultipartFile image, String name, String description, Double price, Double perDayPrice, Long categoryId, String token) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
         User owner = userService.getUserByToken(token);
@@ -133,7 +193,7 @@ public class ProductService {
         product.setName(name);
         product.setDescription(description);
         product.setBasePrice(price);
-        product.setPerDayPrice(perDay);
+        product.setPerDayPrice(perDayPrice);
         product.setStatus("Available");
         product.setOwner(owner);
         product.setCategory(category);
@@ -194,12 +254,38 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-//    public List<ProductResponse> getProductsByCategoryIdAndDayCount(Long categoryId, int dayCount, String status) {
-//        List<ProductResponse> productResponses = this.
-//        for (ProductResponse productResponse : productResponses) {
-//
-//        }
-//        return productResponses;
-//    }
+    public List<ProductResponse> getProductsByCategoryIdAndStatusWithDayCount(Long categoryId, String status, int dayCount) {
+        List<Product> products = productRepository.findAllByCategoryIdAndStatus(categoryId, status);
+        return products.stream()
+                .map(product -> convertToResponse(product, dayCount))
+                .collect(Collectors.toList());
+    }
 
+    public List<ProductResponse> getProductsByCategoryIdAndStatusAndDayCountAndPriceAsc(Long categoryId, String status, int dayCount) {
+        List<ProductResponse> products = getProductsByCategoryIdAndStatusWithDayCount(categoryId, status, dayCount);
+        return products.stream()
+                .sorted(Comparator.comparingDouble(ProductResponse::getTotalPrice))
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByCategoryIdAndStatusAndDayCountAndPriceDesc(Long categoryId, String status, int dayCount) {
+        List<ProductResponse> products = getProductsByCategoryIdAndStatusWithDayCount(categoryId, status, dayCount);
+        return products.stream()
+                .sorted(Comparator.comparingDouble(ProductResponse::getTotalPrice).reversed())
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByCategoryIdAndStatusAndDayCountAndRatingAsc(Long categoryId, String status, int dayCount) {
+        List<ProductResponse> products = getProductsByCategoryIdAndStatusWithDayCount(categoryId, status, dayCount);
+        return products.stream()
+                .sorted(Comparator.comparingDouble(ProductResponse::getRating))
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByCategoryIdAndStatusAndDayCountAndRatingDesc(Long categoryId, String status, int dayCount) {
+        List<ProductResponse> products = getProductsByCategoryIdAndStatusWithDayCount(categoryId, status, dayCount);
+        return products.stream()
+                .sorted(Comparator.comparingDouble(ProductResponse::getRating).reversed())
+                .collect(Collectors.toList());
+    }
 }

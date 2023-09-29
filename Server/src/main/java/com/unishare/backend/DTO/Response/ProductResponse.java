@@ -20,6 +20,7 @@ public class ProductResponse {
     private String status;
     private Double totalPrice;
     private Double rating;
+    private Integer ratingCount;
 
     private Long ownerId;
     private Long categoryId;

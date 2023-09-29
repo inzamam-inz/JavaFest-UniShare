@@ -14,6 +14,7 @@ public class ProductRequest {
     private String name;
     private String description;
     private Double basePrice;
+    private Double perDayPrice;
     private String status;
     private Long ownerId;
     private Long categoryId;
