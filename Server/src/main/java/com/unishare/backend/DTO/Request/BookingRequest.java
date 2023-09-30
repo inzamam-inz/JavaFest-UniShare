@@ -15,5 +15,4 @@ public class BookingRequest {
     private Date rentFrom;
     private Date rentTo;
     private Long productId;
-    private Long borrowerId;
 }

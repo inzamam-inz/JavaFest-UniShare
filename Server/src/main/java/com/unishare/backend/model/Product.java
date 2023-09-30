@@ -23,6 +23,7 @@ public class Product {
 
     private String name;
     private String description;
+    private Double marketPrice;
     private Double basePrice;
     private Double perDayPrice;
     private String status;

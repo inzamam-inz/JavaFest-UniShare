@@ -60,6 +60,7 @@ public class ProductController {
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
+            @RequestParam("marketPrice") Double marketPrice,
             @RequestParam("price") Double price,
             @RequestParam("perDayPrice") Double perDayPrice,
             @RequestParam("categoryId") Long categoryId
@@ -68,7 +69,7 @@ public class ProductController {
             if (images.size() > 3 || images.size() < 1) {
                 return ResponseEntity.badRequest().body(new ApiResponse<>(null, "Images must be between 1 and 3"));
             }
-            ProductResponse createdProduct = productService.createProductWithImage(images, name, description, price, perDayPrice, categoryId, token);
+            ProductResponse createdProduct = productService.createProductWithImage(images, name, description, marketPrice, price, perDayPrice, categoryId, token);
             return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));

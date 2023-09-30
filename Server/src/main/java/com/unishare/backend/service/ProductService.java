@@ -186,7 +186,7 @@ public class ProductService {
         return response;
     }
 
-    public ProductResponse createProductWithImage(List<MultipartFile> images, String name, String description, Double price, Double perDayPrice, Long categoryId, String token) {
+    public ProductResponse createProductWithImage(List<MultipartFile> images, String name, String description, Double marketPrice, Double price, Double perDayPrice, Long categoryId, String token) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
         User owner = userService.getUserByToken(token);
@@ -194,6 +194,7 @@ public class ProductService {
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);
+        product.setMarketPrice(marketPrice);
         product.setBasePrice(price);
         product.setPerDayPrice(perDayPrice);
         product.setStatus("Available");
