@@ -17,7 +17,9 @@ public class ProductResponse implements Serializable {
     private String description;
     private Double basePrice;
     private Double perDayPrice;
-    private String image;
+    private String image1;
+    private String image2;
+    private String image3;
     private String status;
     private Double totalPrice;
     private Double rating;

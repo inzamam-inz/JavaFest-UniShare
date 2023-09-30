@@ -7,6 +7,7 @@ import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Booking;
+import com.unishare.backend.model.BookingStatus;
 import com.unishare.backend.model.Product;
 import com.unishare.backend.model.User;
 import com.unishare.backend.repository.BookingRepository;
@@ -52,7 +53,7 @@ public class BookingsService {
         Booking booking = new Booking();
         booking.setRentFrom(bookingRequest.getRentFrom());
         booking.setRentTo(bookingRequest.getRentTo());
-        booking.setConfirmationStatus(bookingRequest.getConfirmationStatus());
+        booking.setStatus(BookingStatus.PENDING);
 
         Product product = productRepository.findById(bookingRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingRequest.getProductId()));
@@ -81,7 +82,7 @@ public class BookingsService {
         response.setId(booking.getId());
         response.setRentFrom(booking.getRentFrom());
         response.setRentTo(booking.getRentTo());
-        response.setConfirmationStatus(booking.getConfirmationStatus());
+        response.setStatus(booking.getStatus().toString());
         response.setProductResponse(convertProductToResponse(booking.getProduct()));
         response.setBorrower(userService.makeUserResponse(booking.getBorrower()));
         return response;

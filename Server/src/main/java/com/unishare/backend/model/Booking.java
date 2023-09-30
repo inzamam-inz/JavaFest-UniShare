@@ -21,7 +21,7 @@ public class Booking {
 
     private Date rentFrom;
     private Date rentTo;
-    private String confirmationStatus;
+    private BookingStatus status;
 
     @OneToOne()
     @JoinColumn(name = "reviewId")

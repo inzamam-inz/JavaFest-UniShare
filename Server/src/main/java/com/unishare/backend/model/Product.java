@@ -27,7 +27,9 @@ public class Product {
     private Double perDayPrice;
     private String status;
     private Boolean isRestricted;
-    private String image;
+    private String image1;
+    private String image2;
+    private String image3;
 
     @ManyToOne
     @JoinColumn(name = "ownerId")

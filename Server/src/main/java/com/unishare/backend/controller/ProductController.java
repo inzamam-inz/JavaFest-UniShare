@@ -44,20 +44,20 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest product) {
-        try {
-            ProductResponse createdProduct = productService.createProduct(product);
-            return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-        }
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest product) {
+//        try {
+//            ProductResponse createdProduct = productService.createProduct(product);
+//            return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+//        }
+//    }
 
     @PostMapping()
     public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImage(
             @RequestHeader("Authorization") String token,
-            @RequestParam("image") MultipartFile image,
+            @RequestParam("images") List<MultipartFile> images,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("price") Double price,
@@ -65,24 +65,27 @@ public class ProductController {
             @RequestParam("categoryId") Long categoryId
     ) {
         try {
-            ProductResponse createdProduct = productService.createProductWithImage(image, name, description, price, perDayPrice, categoryId, token);
+            if (images.size() > 3 || images.size() < 1) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(null, "Images must be between 1 and 3"));
+            }
+            ProductResponse createdProduct = productService.createProductWithImage(images, name, description, price, perDayPrice, categoryId, token);
             return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
-        try {
-            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
-            return updatedProduct != null
-                    ? ResponseEntity.ok(new ApiResponse<>(updatedProduct, null))
-                    : ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-        }
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
+//        try {
+//            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+//            return updatedProduct != null
+//                    ? ResponseEntity.ok(new ApiResponse<>(updatedProduct, null))
+//                    : ResponseEntity.notFound().build();
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+//        }
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {

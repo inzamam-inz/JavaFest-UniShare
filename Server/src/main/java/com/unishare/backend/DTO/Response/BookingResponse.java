@@ -15,7 +15,7 @@ public class BookingResponse implements Serializable {
     private Long id;
     private Date rentFrom;
     private Date rentTo;
-    private String confirmationStatus;
+    private String status;
     private ProductResponse productResponse;
     private UserResponse borrower;
 }

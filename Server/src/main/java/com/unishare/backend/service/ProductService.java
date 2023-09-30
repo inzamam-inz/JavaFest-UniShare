@@ -53,48 +53,48 @@ public class ProductService {
         throw new ProductNotFoundException("Product not found with ID: " + id);
     }
 
-    public ProductResponse createProduct(ProductRequest productRequest) {
-        Product product = new Product();
-        product.setName(productRequest.getName());
-        product.setDescription(productRequest.getDescription());
-        product.setBasePrice(productRequest.getBasePrice());
-        product.setStatus(productRequest.getStatus());
+//    public ProductResponse createProduct(ProductRequest productRequest) {
+//        Product product = new Product();
+//        product.setName(productRequest.getName());
+//        product.setDescription(productRequest.getDescription());
+//        product.setBasePrice(productRequest.getBasePrice());
+//        product.setStatus(productRequest.getStatus());
+//
+//        User owner = userRepository.findById(productRequest.getOwnerId())
+//                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
+//        product.setOwner(owner);
+//
+//        Category category = categoryRepository.findById(productRequest.getCategoryId())
+//                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
+//        product.setCategory(category);
+//
+//        product = productRepository.save(product);
+//        return convertToResponse(product);
+//    }
 
-        User owner = userRepository.findById(productRequest.getOwnerId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
-        product.setOwner(owner);
-
-        Category category = categoryRepository.findById(productRequest.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
-        product.setCategory(category);
-
-        product = productRepository.save(product);
-        return convertToResponse(product);
-    }
-
-    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-            product.setName(productRequest.getName());
-            product.setDescription(productRequest.getDescription());
-            product.setBasePrice(productRequest.getBasePrice());
-            product.setPerDayPrice(productRequest.getPerDayPrice());
-            product.setStatus(productRequest.getStatus());
-
-            User owner = userRepository.findById(productRequest.getOwnerId())
-                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
-            product.setOwner(owner);
-
-            Category category = categoryRepository.findById(productRequest.getCategoryId())
-                    .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
-            product.setCategory(category);
-
-            product = productRepository.save(product);
-            return convertToResponse(product);
-        }
-        throw new ProductNotFoundException("Product not found with ID: " + id);
-    }
+//    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
+//        Optional<Product> productOptional = productRepository.findById(id);
+//        if (productOptional.isPresent()) {
+//            Product product = productOptional.get();
+//            product.setName(productRequest.getName());
+//            product.setDescription(productRequest.getDescription());
+//            product.setBasePrice(productRequest.getBasePrice());
+//            product.setPerDayPrice(productRequest.getPerDayPrice());
+//            product.setStatus(productRequest.getStatus());
+//
+//            User owner = userRepository.findById(productRequest.getOwnerId())
+//                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
+//            product.setOwner(owner);
+//
+//            Category category = categoryRepository.findById(productRequest.getCategoryId())
+//                    .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
+//            product.setCategory(category);
+//
+//            product = productRepository.save(product);
+//            return convertToResponse(product);
+//        }
+//        throw new ProductNotFoundException("Product not found with ID: " + id);
+//    }
 
     public void deleteProduct(Long id) {
         Optional<Product> productOptional = productRepository.findById(id);
@@ -151,7 +151,9 @@ public class ProductService {
         response.setOwnerId(product.getOwner().getId());
         response.setCategoryId(product.getCategory().getId());
         response.setBookingIds(bookingIds);
-        response.setImage(product.getImage());
+        response.setImage1(product.getImage1());
+        response.setImage2(product.getImage2());
+        response.setImage3(product.getImage3());
         response.setPerDayPrice(product.getPerDayPrice());
 
         return response;
@@ -184,7 +186,7 @@ public class ProductService {
         return response;
     }
 
-    public ProductResponse createProductWithImage(MultipartFile image, String name, String description, Double price, Double perDayPrice, Long categoryId, String token) {
+    public ProductResponse createProductWithImage(List<MultipartFile> images, String name, String description, Double price, Double perDayPrice, Long categoryId, String token) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
         User owner = userService.getUserByToken(token);
@@ -198,8 +200,18 @@ public class ProductService {
         product.setOwner(owner);
         product.setCategory(category);
 
-        String imageUrl = cloudinaryImageService.getUploadedImageUrl(image);
-        product.setImage(imageUrl);
+        String imageUrl1 = cloudinaryImageService.getUploadedImageUrl(images.get(0));
+        product.setImage1(imageUrl1);
+
+        if (images.size() > 1) {
+            String imageUrl2 = cloudinaryImageService.getUploadedImageUrl(images.get(1));
+            product.setImage2(imageUrl2);
+        }
+
+        if (images.size() > 2) {
+            String imageUrl3 = cloudinaryImageService.getUploadedImageUrl(images.get(2));
+            product.setImage3(imageUrl3);
+        }
 
         product = productRepository.save(product);
         return convertToResponse(product);
