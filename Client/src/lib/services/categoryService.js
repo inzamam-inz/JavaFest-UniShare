@@ -1,23 +1,23 @@
 import api from "../api";
 const CategoryService = {
   getAll: () => {
-    return api.getAsync("/category");
+    return api.getAsync("/categories");
   },
 
   create: (category) => {
-    return api.postAsync("/category", category);
+    return api.postAsync("/categories", category);
   },
 
   update: (category) => {
-    return api.putAsync(`/category/${category.id}`, category);
+    return api.putAsync(`/categories/${category.id}`, category);
   },
 
   getOne: (id) => {
-    return api.getAsync(`/category/${id}`);
+    return api.getAsync(`/categories/${id}`);
   },
 
   delete: (id) => {
-    return api.deleteAsync(`/category/${id}`);
+    return api.deleteAsync(`/categories/${id}`);
   },
 };
 export default CategoryService;

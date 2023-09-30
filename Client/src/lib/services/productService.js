@@ -6,7 +6,7 @@ const ProductService = {
   },
 
   create: (product) => {
-    return api.postAsync("/products", product);
+    return api.postFormAsync("/products", product);
   },
 
   update: (product) => {
@@ -19,6 +19,10 @@ const ProductService = {
 
   delete: (id) => {
     return api.deleteAsync(`/productss/${id}`);
+  },
+
+  getByUser: (id) => {
+    return api.getAsync(`/products/owner/${id}`);
   },
 };
 

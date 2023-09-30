@@ -99,5 +99,12 @@ public class UserService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with token."));
     }
 
+    public Long getUserIdFromToken(String token) {
+        String email = jwtService.extractEmailFromBearerToken(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ErrorMessageException("User not found with token."));
+        return user.getId();
+    }
+
     // Add more service methods here as needed
 }

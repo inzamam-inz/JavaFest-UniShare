@@ -1,8 +1,8 @@
 package com.unishare.backend.controller;
 
 import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.Request.CategoryRequest;
 import com.unishare.backend.DTO.Response.CategoryResponse;
-import com.unishare.backend.model.Category;
 import com.unishare.backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +43,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@RequestBody Category category) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@RequestBody CategoryRequest category) {
         try {
             CategoryResponse createdCategory = categoryService.createCategory(category);
             return ResponseEntity.ok(new ApiResponse<>(createdCategory, null));
@@ -53,7 +53,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest updatedCategory) {
         try {
             CategoryResponse updated = categoryService.updateCategory(id, updatedCategory);
             return ResponseEntity.ok(new ApiResponse<>(updated, null));

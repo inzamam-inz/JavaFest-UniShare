@@ -1,5 +1,15 @@
 package com.unishare.backend.model;
 
-public class BookingStatus {
-    // TODO: What about this class?
+import jakarta.persistence.Entity;
+import lombok.*;
+
+
+@RequiredArgsConstructor
+public enum BookingStatus {
+    PENDING,
+    ACCEPTED,
+    REJECTED,
+    LENT,
+    CANCELLED,
+    COMPLETED
 }

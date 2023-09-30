@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserUpdateRequest {
-    private String email;
-    private String fullName;
-    private String profilePicture;
+public class NotificationRequest {
+    private String message;
+    private Long senderId;
+    private Long receiverId;
 }

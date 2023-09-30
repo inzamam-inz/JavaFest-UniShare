@@ -5,6 +5,7 @@ import com.unishare.backend.DTO.Request.UniversityRequest;
 import com.unishare.backend.DTO.Response.UniversityResponse;
 import com.unishare.backend.service.JwtService;
 import com.unishare.backend.service.UniversityService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,17 +15,12 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/universities")
 public class UniversityController {
 
     private final UniversityService universityService;
     private final JwtService jwtService;
-
-    @Autowired
-    public UniversityController(UniversityService universityService, JwtService jwtService) {
-        this.universityService = universityService;
-        this.jwtService = jwtService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UniversityResponse>>> getAllUniversities() {
@@ -48,7 +44,7 @@ public class UniversityController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<UniversityResponse>> createUniversity(@RequestHeader("Authorization") String userAgent, @RequestBody UniversityRequest university) {
+    public ResponseEntity<ApiResponse<UniversityResponse>> createUniversity(@RequestBody UniversityRequest university) {
         try {
             UniversityResponse createdUniversityResponse = universityService.createUniversity(university.getUniversityName());
             return ResponseEntity.ok(new ApiResponse<>(createdUniversityResponse, null));
@@ -58,7 +54,7 @@ public class UniversityController {
     }
 
     @PostMapping("/demo")
-    public ResponseEntity<ApiResponse<UniversityResponse>> createUniversity(@RequestBody UniversityRequest university) {
+    public ResponseEntity<ApiResponse<UniversityResponse>> createDemoUniversity(@RequestBody UniversityRequest university) {
         try {
             UniversityResponse createdUniversityResponse = universityService.createUniversity(university.getUniversityName());
             return ResponseEntity.ok(new ApiResponse<>(createdUniversityResponse, null));

@@ -7,11 +7,13 @@ import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Booking;
+import com.unishare.backend.model.BookingStatus;
 import com.unishare.backend.model.Product;
 import com.unishare.backend.model.User;
 import com.unishare.backend.repository.BookingRepository;
 import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,20 +22,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BookingsService {
 
     private final BookingRepository bookingRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    @Autowired
-    public BookingsService(BookingRepository bookingRepository, ProductRepository productRepository, UserRepository userRepository, UserService userService) {
-        this.bookingRepository = bookingRepository;
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.userService = userService;
-    }
 
     public List<BookingResponse> getAllBookings() {
         List<Booking> bookings = bookingRepository.findAll();
@@ -48,22 +45,143 @@ public class BookingsService {
         throw new RuntimeException("Booking not found with ID: " + id);
     }
 
-    public BookingResponse createBooking(BookingRequest bookingRequest) {
-        Booking booking = new Booking();
-        booking.setRentFrom(bookingRequest.getRentFrom());
-        booking.setRentTo(bookingRequest.getRentTo());
-        booking.setConfirmationStatus(bookingRequest.getConfirmationStatus());
+    public List<BookingResponse> getAllBookingsByBorrower(String token) {
+        Long borrowerId = userService.getUserIdFromToken(token);
+        List<Booking> bookings = bookingRepository.findAllByBorrowerId(borrowerId);
+        return bookings.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+    public Boolean createBooking(String token, BookingRequest bookingRequest) {
+        Long borrowerId = userService.getUserIdFromToken(token);
 
         Product product = productRepository.findById(bookingRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingRequest.getProductId()));
-        booking.setProduct(product);
 
-        User borrower = userRepository.findById(bookingRequest.getBorrowerId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + bookingRequest.getBorrowerId()));
+        User borrower = userRepository.findById(borrowerId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + borrowerId));
+
+        if (!isProductAvailable(bookingRequest.getProductId(), bookingRequest)) {
+            throw new RuntimeException("Product is not available in this time frame");
+        }
+
+        Booking booking = new Booking();
+        booking.setRentFrom(bookingRequest.getRentFrom());
+        booking.setRentTo(bookingRequest.getRentTo());
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setProduct(product);
         booking.setBorrower(borrower);
 
         booking = bookingRepository.save(booking);
-        return convertToResponse(booking);
+
+        Long productOwnerId = product.getOwner().getId();
+        notificationService.sendNotificationOfPendingStatus(productOwnerId, booking.getBorrower().getId(), product.getId());
+
+        return true;
+    }
+
+    public Boolean acceptBookingRequest(Long id, String token) {
+        Long ownerId = userService.getUserIdFromToken(token);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + id));
+
+        if (booking.getProduct().getOwner().getId() != ownerId) {
+            throw new RuntimeException("Not authorized to accept this booking");
+        }
+
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new RuntimeException("Booking is not ready to be accepted");
+        }
+
+        booking.setStatus(BookingStatus.ACCEPTED);
+        booking = bookingRepository.save(booking);
+
+        Long productOwnerId = booking.getProduct().getOwner().getId();
+        notificationService.sendNotificationOfAcceptedStatus(productOwnerId, booking.getBorrower().getId(), booking.getProduct().getId());
+        return true;
+    }
+
+    public Boolean rejectBookingRequest(Long id, String token) {
+        Long ownerId = userService.getUserIdFromToken(token);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + id));
+
+        if (booking.getProduct().getOwner().getId() != ownerId) {
+            throw new RuntimeException("Not authorized to reject this booking");
+        }
+
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new RuntimeException("Booking is not ready to be rejected");
+        }
+
+        booking.setStatus(BookingStatus.REJECTED);
+        booking = bookingRepository.save(booking);
+
+        Long productOwnerId = booking.getProduct().getOwner().getId();
+        notificationService.sendNotificationOfRejectedStatus(productOwnerId, booking.getBorrower().getId(), booking.getProduct().getId());
+        return true;
+    }
+
+    public Boolean lendProduct(Long id, String token) {
+        Long borrowerId = userService.getUserIdFromToken(token);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + id));
+
+        if (booking.getBorrower().getId() != borrowerId) {
+            throw new RuntimeException("Not authorized to lend this product");
+        }
+
+        if (booking.getStatus() != BookingStatus.ACCEPTED) {
+            throw new RuntimeException("Booking is not ready to be lent");
+        }
+
+        booking.setStatus(BookingStatus.LENT);
+        booking = bookingRepository.save(booking);
+
+        Long productOwnerId = booking.getProduct().getOwner().getId();
+        notificationService.sendNotificationOfLentStatus(productOwnerId, booking.getBorrower().getId(), booking.getProduct().getId());
+        return true;
+    }
+
+    public Boolean completeBooking(Long id, String token) {
+        Long ownerId = userService.getUserIdFromToken(token);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + id));
+
+        if (booking.getProduct().getOwner().getId() != ownerId) {
+            throw new RuntimeException("Not authorized to complete this booking");
+        }
+
+        if (booking.getStatus() != BookingStatus.LENT) {
+            throw new RuntimeException("Booking is not ready to be completed");
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        booking = bookingRepository.save(booking);
+
+        Long productOwnerId = booking.getProduct().getOwner().getId();
+        notificationService.sendNotificationOfCompletedStatus(productOwnerId, booking.getBorrower().getId(), booking.getProduct().getId());
+        return true;
+    }
+
+    public Boolean cancelBooking(Long id, String token) {
+        Long borrowerId = userService.getUserIdFromToken(token);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + id));
+
+        if (booking.getBorrower().getId() != borrowerId) {
+            throw new RuntimeException("Not authorized to cancel this booking");
+        }
+
+        if (booking.getStatus() != BookingStatus.ACCEPTED && booking.getStatus() != BookingStatus.PENDING) {
+            throw new RuntimeException("Booking is not ready to be cancelled");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking = bookingRepository.save(booking);
+
+        Long productOwnerId = booking.getProduct().getOwner().getId();
+        notificationService.sendNotificationOfCancelledStatus(productOwnerId, booking.getBorrower().getId(), booking.getProduct().getId());
+        return true;
     }
 
     public void deleteBooking(Long id) {
@@ -81,7 +199,7 @@ public class BookingsService {
         response.setId(booking.getId());
         response.setRentFrom(booking.getRentFrom());
         response.setRentTo(booking.getRentTo());
-        response.setConfirmationStatus(booking.getConfirmationStatus());
+        response.setStatus(booking.getStatus().toString());
         response.setProductResponse(convertProductToResponse(booking.getProduct()));
         response.setBorrower(userService.makeUserResponse(booking.getBorrower()));
         return response;
@@ -102,6 +220,25 @@ public class BookingsService {
         response.setCategoryId(product.getCategory().getId());
         response.setBookingIds(bookingIds);
         return response;
+    }
+
+    private List<BookingResponse> getBookingsByProductId(Long productId) {
+        List<Booking> bookings = bookingRepository.findAllByProductId(productId);
+        return bookings.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+    private Boolean isBookedStatus(BookingStatus status) {
+        return status.equals(BookingStatus.ACCEPTED) || status.equals(BookingStatus.LENT) || status.equals(BookingStatus.COMPLETED);
+    }
+
+    private Boolean isProductAvailable(Long productId, BookingRequest bookingRequest) {
+        List<Booking> bookings = bookingRepository.findAllByProductId(productId);
+        for (Booking booking : bookings) {
+            if (isBookedStatus(booking.getStatus()) && booking.getRentFrom().before(bookingRequest.getRentTo()) && booking.getRentTo().after(bookingRequest.getRentFrom())) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
