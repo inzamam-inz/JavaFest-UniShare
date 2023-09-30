@@ -1,5 +1,6 @@
 "use client";
 import ImageUpload from "@/components/GlobalComponents/ImageUpload/ImageUpload";
+import UniversityService from "@/lib/services/universityService";
 import UserService from "@/lib/services/userService";
 import userSlice from "@/store/Slices/userSlice";
 import { CogIcon, HomeIcon, UserIcon } from "@heroicons/react/24/outline";
@@ -10,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const Page = () => {
-  const { user } = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.currentUser);
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
   const [userLocation, setUserLocation] = useState(null);
@@ -39,10 +40,6 @@ const Page = () => {
       .catch((err) => {
         toast.error(err.message);
       });
-  };
-
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
   };
 
   const handleIdCardUpload = (image) => {
@@ -81,14 +78,24 @@ const Page = () => {
   };
 
   useEffect(() => {
-    UserService.getOne(user?.id)
-      .then((res) => {
-        userSlice.actions.setUser(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    if (user) {
+      UserService.getOne(user?.id)
+        .then((res) => {
+          userSlice.actions.setUser(res);
+          setFormData(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      UniversityService.getAll()
+        .then((res) => {
+          setUniversities(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [user]);
   return (
     <div>
       <div className="bg-gray-100">
@@ -222,7 +229,7 @@ const Page = () => {
                           </option>
                           {univserities.map((university) => (
                             <option value={university.id}>
-                              {university.name}
+                              {university.universityName}
                             </option>
                           ))}
                         </select>

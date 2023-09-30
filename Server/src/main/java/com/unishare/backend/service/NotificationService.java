@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -76,6 +77,7 @@ public class NotificationService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
         notification.setSender(userRepository.findById(borrowerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
+        notification.setCreatedAt(new Date());
         notificationRepository.save(notification);
     }
 
@@ -89,6 +91,7 @@ public class NotificationService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
         notification.setReceiver(userRepository.findById(borrowerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
+        notification.setCreatedAt(new Date());
         notificationRepository.save(notification);
     }
 
@@ -102,6 +105,7 @@ public class NotificationService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
         notification.setReceiver(userRepository.findById(borrowerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
+        notification.setCreatedAt(new Date());
         notificationRepository.save(notification);
     }
 
@@ -115,6 +119,7 @@ public class NotificationService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
         notification.setSender(userRepository.findById(borrowerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
+        notification.setCreatedAt(new Date());
         notificationRepository.save(notification);
     }
 
@@ -127,7 +132,8 @@ public class NotificationService {
         notification.setReceiver(userRepository.findById(ownerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
         notification.setSender(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));        notification.setCreatedAt(new Date());
+        notification.setCreatedAt(new Date());
         notificationRepository.save(notification);
     }
 
@@ -140,6 +146,7 @@ public class NotificationService {
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
         notification.setReceiver(userRepository.findById(borrowerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
+        notification.setCreatedAt(new Date());
         notificationRepository.save(notification);
     }
 }

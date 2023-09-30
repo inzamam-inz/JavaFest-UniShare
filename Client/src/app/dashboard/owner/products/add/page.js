@@ -5,7 +5,7 @@ import PageHeader from "@/components/OwnerComponents/PageHeader";
 import CategoryService from "@/lib/services/categoryService";
 import ProductService from "@/lib/services/productService";
 import { setCategory } from "@/store/Slices/categorySlice";
-import { setMyProducts, setProduct } from "@/store/Slices/productSlice";
+import { setMyProducts } from "@/store/Slices/productSlice";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,19 +22,34 @@ const Page = () => {
     description: "",
     categoryId: "",
     price: 0,
-    image: "",
+    image1: "",
+    image2: "",
+    image3: "",
+    marketPrice: 0,
   });
 
   const handleSubmit = () => {
+    const images = [];
+    if (productForm.image1) {
+      images.push(productForm.image1);
+    }
+    if (productForm.image2) {
+      images.push(productForm.image2);
+    }
+    if (productForm.image3) {
+      images.push(productForm.image3);
+    }
+
     const formData = new FormData();
     formData.append("name", productForm.name);
-    formData.append("perDay", productForm.pricePerDay);
+    formData.append("perDayPrice", productForm.pricePerDay);
     formData.append("description", productForm.description);
     formData.append("categoryId", productForm.categoryId);
+    formData.append("marketPrice", productForm.marketPrice);
     formData.append("price", productForm.price);
-    formData.append("image", productForm.image);
+    formData.append("images", new Blob(images, { type: "image/jpeg" }));
     ProductService.create(formData).then((res) => {
-      ProductService.getByUser( user?.id).then((res) => {
+      ProductService.getByUser(user?.id).then((res) => {
         dispatch(setMyProducts(res));
       });
       router.push("/dashboard/owner/products");
@@ -123,6 +138,29 @@ const Page = () => {
                   })
                 }
                 value={productForm.pricePerDay}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full px-3">
+              <label
+                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                htmlFor="grid-price"
+              >
+                Market Price (in BDT)
+              </label>
+              <input
+                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                id="grid-price"
+                type="number"
+                placeholder="Price per day"
+                onChange={(e) =>
+                  setProductForm({
+                    ...productForm,
+                    marketPrice: e.target.value,
+                  })
+                }
+                value={productForm.marketPrice}
               />
             </div>
           </div>
@@ -215,17 +253,38 @@ const Page = () => {
               >
                 Images
               </label>
-              <div className="flex flex-wrap -mx-3 mb-6">
-                <div className="w-full px-3">
+              <div className="flex flex-wrap -mx-3 mb-6 justify-center">
+                {/* three images */}
+                <div className="grid grid-cols-3 gap-6">
                   <ImageUpload
-                    label={"Upload Image"}
+                    label={"Image*"}
                     onImageChange={(e) =>
                       setProductForm({
                         ...productForm,
-                        image: e,
+                        image1: e,
                       })
                     }
-                    currentImage={productForm.image}
+                    currentImage={productForm.image1}
+                  />
+                  <ImageUpload
+                    label={" Image"}
+                    onImageChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        image2: e,
+                      })
+                    }
+                    currentImage={productForm.image2}
+                  />
+                  <ImageUpload
+                    label={"Image"}
+                    onImageChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        image3: e,
+                      })
+                    }
+                    currentImage={productForm.image3}
                   />
                 </div>
               </div>

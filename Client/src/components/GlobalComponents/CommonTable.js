@@ -56,12 +56,20 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                             </div>
                           </td>
                         ) : column === "status" ? (
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                 item[column] === "Available"
                                   ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
+                                  : item[column] === "LENT"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : item[column] === "PENDING"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : item[column] === "REJECTED"
+                                  ? "bg-red-100 text-red-800"
+                                  : item[column] === "ACCEPTED"
+                                  ? "bg-green-100 text-green-800"
+                                  : " bg-slate-400 text-white"
                               }`}
                             >
                               {item[column]}
@@ -109,6 +117,11 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                               ) : action.type === "unblock" ? (
                                 <button className="text-green-500">
                                   Unblock
+                                </button>
+                              ) : action.type === "markAsReceived" &&
+                                item.status === "LENT" ? (
+                                <button className=" text-sm  text-green-800">
+                                  Mark as Returned
                                 </button>
                               ) : (
                                 action.type === "reject" && (

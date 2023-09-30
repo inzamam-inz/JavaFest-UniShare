@@ -46,14 +46,14 @@ const Page = () => {
         ]}
         data={
           products &&
-          products.map((category) => {
+          products.map((product) => {
             return {
-              image: category.image,
-              name: category.name,
-              basePrice: category.basePrice,
-              perDayPrice: category.perDayPrice,
-              status: category.status,
-              description: category.description,
+              image: product.image1,
+              name: product.name,
+              basePrice: product.basePrice,
+              perDayPrice: product.perDayPrice,
+              status: product.status,
+              description: product.description,
             };
           })
         }

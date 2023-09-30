@@ -25,8 +25,10 @@ const Page = () => {
   useEffect(() => {
     ProductService.getOne(product_id).then((res) => {
       setProduct(res);
-      setPreviewImg(res.image);
-      // thumbnails.push(res.image);
+      setPreviewImg(res.image1);
+      res.image1 && setThumbnails([res.image1]);
+      res.image2 && setThumbnails((thumbnails) => [...thumbnails, res.image2]);
+      res.image3 && setThumbnails((thumbnails) => [...thumbnails, res.image3]);
       UserService.getOne(res.ownerId).then((res) => {
         setOwner(res);
       });
@@ -56,10 +58,8 @@ const Page = () => {
   const handleRequest = () => {
     const data = {
       productId: product.productId,
-      borrowerId: user.id,
       rentFrom: selectionRange.startDate,
       rentTo: selectionRange.endDate,
-      confirmationStatus: "pending",
     };
     BookingService.createBooking(data)
       .then((res) => {
@@ -86,21 +86,23 @@ const Page = () => {
                 ref={thumbnailRef}
                 className="thumbnails flex max-w-3xl justify-between pt-8"
               >
-                {thumbnails.map((img, index) => (
-                  <div
-                    ref={modalThumbnailRef}
-                    key={index}
-                    className="cursor-pointer w-15 h-15 p-4 rounded-xl hover:opacity-80 relative overflow-hidden bg-white"
-                  >
-                    <img
-                      id={index}
-                      onClick={previewDisplay}
-                      className="w-full"
-                      src={img}
-                      alt="thumbnail"
-                    />
-                  </div>
-                ))}
+                {thumbnails &&
+                  thumbnails.length > 1 &&
+                  thumbnails.map((img, index) => (
+                    <div
+                      ref={modalThumbnailRef}
+                      key={index}
+                      className="cursor-pointer w-15 h-15 p-4 rounded-xl hover:opacity-80 relative overflow-hidden bg-white"
+                    >
+                      <img
+                        id={index}
+                        onClick={previewDisplay}
+                        className="w-full"
+                        src={img}
+                        alt="thumbnail"
+                      />
+                    </div>
+                  ))}
               </div>
               {/* Location */}
               <div className="location flex items-center justify-between lg:flex-col lg:items-start mb-6 w-full h-60">

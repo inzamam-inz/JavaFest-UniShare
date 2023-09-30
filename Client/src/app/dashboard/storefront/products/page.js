@@ -37,7 +37,7 @@ export default function page() {
             >
               <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-200 group-hover:opacity-75">
                 <img
-                  src={product.image}
+                  src={product.image1}
                   alt={product.image}
                   className="h-full w-full object-cover object-center"
                 />
