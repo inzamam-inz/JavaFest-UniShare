@@ -14,8 +14,5 @@ import java.util.Date;
 public class BookingRequest {
     private Date rentFrom;
     private Date rentTo;
-    private String confirmationStatus;
     private Long productId;
-    private Long borrowerId;
-
 }

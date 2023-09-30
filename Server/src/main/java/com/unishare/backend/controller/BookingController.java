@@ -32,6 +32,16 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/self")
+    public ResponseEntity<ApiResponse<List<BookingResponse>>> getAllBookingsByBorrower(@RequestHeader("Authorization") String token) {
+        try {
+            List<BookingResponse> bookings = bookingsService.getAllBookingsByBorrower(token);
+            return ResponseEntity.ok(new ApiResponse<>(bookings, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BookingResponse>> getBookingById(@PathVariable Long id) {
         try {
@@ -43,10 +53,60 @@ public class BookingController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<BookingResponse>> createBooking(@RequestBody BookingRequest bookingRequest) {
+    public ResponseEntity<ApiResponse<Boolean>> createBooking(@RequestHeader("Authorization") String token, @RequestBody BookingRequest bookingRequest) {
         try {
-            BookingResponse createdBooking = bookingsService.createBooking(bookingRequest);
-            return ResponseEntity.ok(new ApiResponse<>(createdBooking, null));
+            Boolean flag = bookingsService.createBooking(token, bookingRequest);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("accept/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> acceptBooking(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            Boolean flag = bookingsService.acceptBookingRequest(id, token);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("reject/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> rejectBooking(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            Boolean flag = bookingsService.rejectBookingRequest(id, token);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("lent/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> lentBooking(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            Boolean flag = bookingsService.lendProduct(id, token);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("cancel/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> cancelBooking(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            Boolean flag = bookingsService.cancelBooking(id, token);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("complete/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> completeBooking(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            Boolean flag = bookingsService.completeBooking(id, token);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }

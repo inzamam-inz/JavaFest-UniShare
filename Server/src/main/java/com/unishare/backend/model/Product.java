@@ -23,11 +23,14 @@ public class Product {
 
     private String name;
     private String description;
+    private Double marketPrice;
     private Double basePrice;
     private Double perDayPrice;
     private String status;
     private Boolean isRestricted;
-    private String image;
+    private String image1;
+    private String image2;
+    private String image3;
 
     @ManyToOne
     @JoinColumn(name = "ownerId")
