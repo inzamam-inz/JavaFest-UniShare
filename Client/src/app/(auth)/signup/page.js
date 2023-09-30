@@ -2,27 +2,20 @@
 
 import ImageUpload from "@/components/GlobalComponents/ImageUpload/ImageUpload";
 import AuthService from "@/lib/services/authService";
+import UniversityService from "@/lib/services/universityService";
+import { setUniversity } from "@/store/Slices/universitySlice";
 import { Button } from "@material-tailwind/react";
-import { createTheme } from "@mui/material/styles";
 import GoogleMapReact from "google-map-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-const defaultTheme = createTheme();
 
 export default function SignUp() {
-  // key value pair of university name and id
-  const [univserities, setUniversities] = useState([
-    {
-      name: "University of Dhaka",
-      id: 1,
-    },
-    {
-      name: "Bangladesh University of Engineering and Technology",
-      id: 2,
-    },
-  ]);
+  const availableUniversities = useSelector(
+    (state) => state.university.university
+  );
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
   const [isFirstStep, setIsFirstStep] = useState(false);
@@ -149,8 +142,16 @@ export default function SignUp() {
     setProfileImage(file);
   };
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     // Get the user's location when the component mounts
+    if (availableUniversities === null) {
+      UniversityService.getAll().then((res) => {
+        dispatch(setUniversity(res));
+      });
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
@@ -269,9 +270,9 @@ export default function SignUp() {
                         <option value="" disabled selected>
                           Select your university
                         </option>
-                        {univserities.map((university) => (
+                        {availableUniversities?.map((university) => (
                           <option value={university.id}>
-                            {university.name}
+                            {university.universityName}
                           </option>
                         ))}
                       </select>
@@ -383,6 +384,13 @@ export default function SignUp() {
                         center={userLocation} // Center the map on the user's location
                         className="h-screen	"
                         onClick={handleMapClick} // Attach the click event handler
+                        onGoogleApiLoaded={({ map, maps }) => {
+                          new maps.Marker({
+                            position: userLocation,
+                            map,
+                            title: "Click Me!",
+                          });
+                        }}
                       >
                         {userLocation && (
                           <div lat={userLocation.lat} lng={userLocation.lng}>

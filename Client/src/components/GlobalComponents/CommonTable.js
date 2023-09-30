@@ -14,7 +14,7 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
         <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
           {/* Table body */}
           <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200 ">
+            <table className="min-w-full divide-y divide-gray-200 table-auto">
               {/* Table header */}
               <thead className="bg-gray-50">
                 <tr>
@@ -22,7 +22,7 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                     <th
                       key={column}
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider"
                     >
                       {column}
                     </th>
@@ -45,11 +45,11 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                       {columns.map((column) =>
                         column === "image" ? (
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
+                            <div className="flex items-center justify-center">
                               <div className="flex-shrink-0 h-10 w-10">
                                 <img
                                   className="h-10 w-10 rounded-full"
-                                  src={`https://picsum.photos/id/${item[column]}/200/300`}
+                                  src={item[column]}
                                   alt=""
                                 />
                               </div>
@@ -59,7 +59,7 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                item[column] === "available"
+                                item[column] === "Available"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-red-100 text-red-800"
                               }`}
@@ -80,10 +80,7 @@ const CommonTable = ({ columns, data, actions, ...rest }) => {
                             </div>
                           </td>
                         ) : (
-                          <td
-                            key={column}
-                            className="px-6 py-4 whitespace-nowrap"
-                          >
+                          <td key={column} className="  max-w-xs text-center">
                             <div className="text-sm text-gray-900">
                               {item[column]}
                             </div>

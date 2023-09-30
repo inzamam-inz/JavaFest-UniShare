@@ -1,10 +1,25 @@
 "use client";
 import CommonTable from "@/components/GlobalComponents/CommonTable";
 import PageHeader from "@/components/OwnerComponents/PageHeader";
+import ProductService from "@/lib/services/productService";
+import { setMyProducts } from "@/store/Slices/productSlice";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const Page = () => {
   const router = useRouter();
+  const products = useSelector((state) => state.product.myProducts);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.currentUser);
+
+  useEffect(() => {
+    if (!products && user) {
+      ProductService.getByUser(user?.id).then((res) => {
+        dispatch(setMyProducts(res));
+      });
+    }
+  }, [products, user, dispatch]);
 
   return (
     <>
@@ -21,44 +36,32 @@ const Page = () => {
       />
       {/* Products Table */}
       <CommonTable
-        columns={["id", "image", "name", "price", "description"]}
-        data={[
-          {
-            id: 1,
-            image: 10,
-            name: "Product 1",
-            price: 100,
-            description: "This is product 1",
-          },
-          {
-            id: 2,
-            name: "Product 2",
-            price: 200,
-            image: 20,
-            description: "This is product 2",
-          },
-          {
-            id: 3,
-            name: "Product 3",
-            price: 300,
-            image: 30,
-            description: "This is product 3",
-          },
+        columns={[
+          "image",
+          "name",
+          "basePrice",
+          "perDayPrice",
+          "status",
+          "description",
         ]}
+        data={
+          products &&
+          products.map((category) => {
+            return {
+              image: category.image,
+              name: category.name,
+              basePrice: category.basePrice,
+              perDayPrice: category.perDayPrice,
+              status: category.status,
+              description: category.description,
+            };
+          })
+        }
         actions={[
-          {
-            name: "Edit",
-            type: "edit",
-            onClick: () => {
-              console.log("Edit");
-            },
-          },
           {
             name: "Delete",
             type: "delete",
-            onClick: () => {
-              console.log("Delete");
-            },
+            onClick: () => {},
           },
         ]}
       />

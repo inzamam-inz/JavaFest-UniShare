@@ -4,12 +4,10 @@ function getDefaultHeaders(content, includeContent) {
     headers["Content-type"] = `application/json`;
   } else {
   }
-
   let token = localStorage.getItem("jwt_token");
-  if (token) {
+  if (token !== null) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-
   return headers;
 }
 
@@ -28,17 +26,23 @@ async function apiClient(endpoint, options, method, isFormData) {
 
     const response =
       method === "GET" || method === "DELETE"
-        ? await fetch(url, { headers: requestOptions.headers, method: method })
+        ? await fetch(url, {
+            headers: requestOptions.headers,
+            method: method,
+            // mode: "no-cors",
+          })
         : isFormData
         ? await fetch(url, {
-            // headers: requestOptions.formDataHeader,
+            headers: requestOptions.formDataHeader,
             method: method,
             body: options,
+            //   mode: "no-cors",
           })
         : await fetch(url, {
             headers: requestOptions.headers,
             method: method,
             body: JSON.stringify(options),
+            //    mode: "no-cors",
           });
     if (!response.ok) {
       const error = await response.json();
@@ -50,7 +54,6 @@ async function apiClient(endpoint, options, method, isFormData) {
       return await response.text();
     }
     const result = await response.json();
-    console.log(result);
     return result.successResponse;
   } catch (error) {
     throw error;

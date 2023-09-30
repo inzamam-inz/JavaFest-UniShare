@@ -5,7 +5,7 @@ const PageHeader = ({ title, description, actions, backlink, ...rest }) => {
     <div>
       {/* header using tailwind */}
       <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="  py-6 sm:px-6 ">
           {/* icon */}
           <div className="flex items-center justify-between flex-wrap">
             <div className="w-0 flex-1 flex items-center">

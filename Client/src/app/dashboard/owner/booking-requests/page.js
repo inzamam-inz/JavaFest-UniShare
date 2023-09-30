@@ -2,64 +2,51 @@
 
 import CommonTable from "@/components/GlobalComponents/CommonTable";
 import PageHeader from "@/components/OwnerComponents/PageHeader";
+import BookingService from "@/lib/services/bookingService";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 const Page = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const [bookings, setBookings] = useState([]);
 
+  useEffect(() => {
+    BookingService.getAll()
+      .then((res) => {
+        res.map((booking) => {
+          booking.rentFrom = booking.rentFrom.slice(0, 10);
+          booking.rentTo = booking.rentTo.slice(0, 10);
+          booking.productName = booking.productResponse.name;
+          booking.image = booking.productResponse.image;
+          booking.borrowerName = booking.borrower.fullName;
+          booking.address = booking.borrower.address;
+        });
+        setBookings(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
   return (
     <>
       <PageHeader
         title="Booking Requests"
         description="Manage your booking requests here"
-        actions={[
-          {
-            name: "Add New",
-            type: "addNew",
-            href: "/dashboard/owner/booking-requests/add",
-          },
-        ]}
+        actions={[]}
       />
       {/* booking requests common table, product name , image, user name, address, from Date, to Date*/}
       <CommonTable
         columns={[
-          "id",
           "productName",
           "image",
-          "userName",
+          "borrowerName",
           "address",
-          "fromDate",
-          "toDate",
+          "rentFrom",
+          "rentTo",
         ]}
-        data={[
-          {
-            id: 1,
-            productName: "Product 1",
-            image: 10,
-            userName: "User 1",
-            address: "Address 1",
-            fromDate: "01-01-2021",
-            toDate: "02-01-2021",
-          },
-          {
-            id: 2,
-            productName: "Product 2",
-            image: 20,
-            userName: "User 2",
-            address: "Address 2",
-            fromDate: "02-01-2021",
-            toDate: "03-01-2021",
-          },
-          {
-            id: 3,
-            productName: "Product 3",
-            image: 30,
-            userName: "User 3",
-            address: "Address 3",
-            fromDate: "03-01-2021",
-            toDate: "04-01-2021",
-          },
-        ]}
+        data={bookings}
         actions={[
           // accept and reject
           {

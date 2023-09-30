@@ -63,9 +63,9 @@ const Navbar = () => {
 
           {/* Secondary navigation */}
           <div className="bg-white bg-opacity-10 backdrop-blur-md backdrop-filter">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div>
-                <div className="flex h-16 items-center justify-between">
+            <div className="  px-4 sm:px-6 lg:px-">
+              <div className=" ">
+                <div className="flex h-16 ">
                   {/* Logo (lg+) */}
                   <div className="hidden lg:flex lg:flex-1 lg:items-center">
                     <Link
