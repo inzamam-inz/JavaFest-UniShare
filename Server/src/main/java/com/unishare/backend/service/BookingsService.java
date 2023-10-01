@@ -76,7 +76,15 @@ public class BookingsService {
 
         User borrower = userRepository.findById(borrowerId)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId));
-        
+
+        if (!isProductAvailable(product.getId(), bookingRequest)) {
+            throw new RuntimeException("Product is not available for the requested dates");
+        }
+
+        if (borrowerId.equals(product.getOwner().getId())) {
+            throw new RuntimeException("Cannot book your own product");
+        }
+
         Booking booking = new Booking();
         booking.setRentFrom(bookingRequest.getRentFrom());
         booking.setRentTo(bookingRequest.getRentTo());

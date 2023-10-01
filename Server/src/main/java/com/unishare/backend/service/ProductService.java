@@ -7,10 +7,7 @@ import com.unishare.backend.exceptionHandlers.CategoryNotFoundException;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
-import com.unishare.backend.model.Booking;
-import com.unishare.backend.model.Category;
-import com.unishare.backend.model.Product;
-import com.unishare.backend.model.User;
+import com.unishare.backend.model.*;
 import com.unishare.backend.repository.BookingRepository;
 import com.unishare.backend.repository.CategoryRepository;
 import com.unishare.backend.repository.ProductRepository;
@@ -39,29 +36,17 @@ public class ProductService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
 
-//    public ProductService(ProductRepository productRepository, UserRepository userRepository,
-//                          CategoryRepository categoryRepository, CloudinaryImageService cloudinaryImageService, UserService userService) {
-//        this.productRepository = productRepository;
-//        this.userRepository = userRepository;
-//        this.categoryRepository = categoryRepository;
-//        this.cloudinaryImageService = cloudinaryImageService;
-//        this.userService = userService;
-//    }
-
-//    public List<ProductResponse> getAllProducts() {
-//        List<Product> products = productRepository.findAll();
-//        return products.stream().map(this::convertToResponse).collect(Collectors.toList());
-//    }
-
     @Cacheable("product-all")
     public PageResponse<List<ProductResponse>> getAllProducts(int page, int size) {
         if (size == Integer.MAX_VALUE) page = 0;
         Page<Product> pageResponse = productRepository.getProductsPage(PageRequest.of(page, size));
 
         PageResponse<List<ProductResponse>> pageResponses = new PageResponse<>();
-        List<ProductResponse> products = pageResponse.stream()
+        List<ProductResponse> products = pageResponse.getContent().stream()
+                .filter(product -> !product.getIsRestricted())
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+
         pageResponses.setData(products);
         pageResponses.setTotalPages(pageResponse.getTotalPages());
         pageResponses.setTotalElements(pageResponse.getTotalElements());
@@ -78,49 +63,6 @@ public class ProductService {
         }
         throw new ProductNotFoundException("Product not found with ID: " + id);
     }
-
-//    public ProductResponse createProduct(ProductRequest productRequest) {
-//        Product product = new Product();
-//        product.setName(productRequest.getName());
-//        product.setDescription(productRequest.getDescription());
-//        product.setBasePrice(productRequest.getBasePrice());
-//        product.setStatus(productRequest.getStatus());
-//
-//        User owner = userRepository.findById(productRequest.getOwnerId())
-//                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
-//        product.setOwner(owner);
-//
-//        Category category = categoryRepository.findById(productRequest.getCategoryId())
-//                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
-//        product.setCategory(category);
-//
-//        product = productRepository.save(product);
-//        return convertToResponse(product);
-//    }
-
-//    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
-//        Optional<Product> productOptional = productRepository.findById(id);
-//        if (productOptional.isPresent()) {
-//            Product product = productOptional.get();
-//            product.setName(productRequest.getName());
-//            product.setDescription(productRequest.getDescription());
-//            product.setBasePrice(productRequest.getBasePrice());
-//            product.setPerDayPrice(productRequest.getPerDayPrice());
-//            product.setStatus(productRequest.getStatus());
-//
-//            User owner = userRepository.findById(productRequest.getOwnerId())
-//                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
-//            product.setOwner(owner);
-//
-//            Category category = categoryRepository.findById(productRequest.getCategoryId())
-//                    .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
-//            product.setCategory(category);
-//
-//            product = productRepository.save(product);
-//            return convertToResponse(product);
-//        }
-//        throw new ProductNotFoundException("Product not found with ID: " + id);
-//    }
 
     @CacheEvict(value = {"product-#id", "product-all"}, allEntries = true)
     public void deleteProduct(Long id) {
@@ -191,7 +133,6 @@ public class ProductService {
 
         return response;
     }
-
 
     private ProductResponse convertToResponse(Product product) {
         List<Long> bookingIds = bookingRepository.findAllByProductId(product.getId()).stream()
@@ -333,5 +274,44 @@ public class ProductService {
         return products.stream()
                 .sorted(Comparator.comparingDouble(ProductResponse::getRating).reversed())
                 .collect(Collectors.toList());
+    }
+
+    private boolean canBeRestricted(Product product) {
+        List<Booking> bookings = bookingRepository.findAllByProductId(product.getId());
+        for (Booking booking : bookings) {
+            if (booking.getStatus().equals(BookingStatus.LENT) ||
+                    booking.getStatus().equals(BookingStatus.ACCEPTED)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Boolean restrictProduct(Long id) {
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            if (!canBeRestricted(productOptional.get())) {
+                throw new ErrorMessageException("Product cannot be restricted because it is currently being lent or booked");
+            }
+            Product product = productOptional.get();
+            product.setStatus("Restricted");
+            product.setIsRestricted(true);
+            productRepository.save(product);
+            return true;
+        } else {
+            throw new ProductNotFoundException("Product not found with ID: " + id);
+        }
+    }
+
+    // restricted user's product
+    public void restrictProductOfUser(Long id) {
+        List<Product> products = productRepository.findAllByOwnerId(id);
+        for (Product product : products) {
+            if (canBeRestricted(product)) {
+                product.setStatus("Restricted");
+                product.setIsRestricted(true);
+                productRepository.save(product);
+            }
+        }
     }
 }

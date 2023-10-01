@@ -1,12 +1,20 @@
 package com.unishare.backend.service;
 
 import com.unishare.backend.DTO.Request.UserUpdateRequest;
+import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
 import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
+import com.unishare.backend.model.Booking;
+import com.unishare.backend.model.BookingStatus;
+import com.unishare.backend.model.Product;
 import com.unishare.backend.model.User;
+import com.unishare.backend.repository.BookingRepository;
+import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -17,15 +25,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final ProductRepository productRepository;
+    private final BookingRepository bookingRepository;
 
-    public UserService(UserRepository userRepository, JwtService jwtService) {
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-    }
+
 
     public UserResponse makeUserResponse(User user) {
         return new UserResponse(
@@ -62,14 +70,6 @@ public class UserService {
         return pageResponse;
     }
 
-
-//    public List<UserResponse> getAllUsers() {
-//        List<User> users = userRepository.findAll();
-//        return users.stream()
-//                .map(this::makeUserResponse)
-//                .collect(Collectors.toList());
-//    }
-
     @Cacheable("user-#id")
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -97,7 +97,27 @@ public class UserService {
         user.setIsBlocked(isBlocked);
         user = userRepository.save(user);
 
+        List<Product> products = productRepository.findAllByOwnerId(id);
+        for (Product product : products) {
+            if (canBeRestricted(product)) {
+                product.setStatus("Restricted");
+                product.setIsRestricted(true);
+                productRepository.save(product);
+            }
+        }
+
         return makeUserResponse(user);
+    }
+
+    private boolean canBeRestricted(Product product) {
+        List<Booking> bookings = bookingRepository.findAllByProductId(product.getId());
+        for (Booking booking : bookings) {
+            if (booking.getStatus().equals(BookingStatus.LENT) ||
+                    booking.getStatus().equals(BookingStatus.ACCEPTED)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
