@@ -2,6 +2,7 @@
 
 import UserService from "@/lib/services/userService";
 import { setUser } from "@/store/Slices/userSlice";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -41,14 +42,14 @@ const categories = [
 export default function page() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  console.log(user);
+  const router = useRouter();
   useEffect(() => {
     UserService.getCurrentUser()
       .then((res) => {
         dispatch(setUser(res.data));
       })
       .catch((err) => {
-        console.log(err);
+        localStorage.removeItem("jwt_token");
       });
   }, []);
 

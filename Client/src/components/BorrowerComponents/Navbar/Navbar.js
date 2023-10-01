@@ -31,7 +31,7 @@ const Navbar = () => {
       key: "myrequests",
       href: "/dashboard/storefront/myrequests",
     },
-    { name: "History", key: "history", href: "/dashboard/storefront/history" },
+    { name: "Orders", key: "history", href: "/dashboard/storefront/history" },
   ];
   return (
     <div className="relative bg-gray-600">

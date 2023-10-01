@@ -53,7 +53,12 @@ const Sidebar = () => {
       icon: FolderIcon,
       current: false,
     },
-    { name: "Rentals", href: "#", icon: CalendarIcon, current: false },
+    {
+      name: "Rentals",
+      href: "/dashboard/owner/rentals",
+      icon: CalendarIcon,
+      current: false,
+    },
     {
       name: "Reviews",
       href: "#",

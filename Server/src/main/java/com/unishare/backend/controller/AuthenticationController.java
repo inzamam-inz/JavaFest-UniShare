@@ -75,7 +75,7 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
 
-    @PostMapping("email-verification-otp")
+    @PostMapping("/email-verification-otp")
     public ResponseEntity<ApiResponse<String>> emailVerificationOTP(@RequestHeader("Authorization") String token) {
         try {
             service.sendEmailVerificationCode(token);

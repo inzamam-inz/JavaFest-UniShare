@@ -14,7 +14,7 @@ const Layout = ({ children }) => {
           dispatch(setUser(res));
         })
         .catch((err) => {
-          console.log(err);
+          localStorage.removeItem("jwt_token");
         });
     }
   }, []);
