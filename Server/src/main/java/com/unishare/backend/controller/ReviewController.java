@@ -1,10 +1,10 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.ReviewRequest;
 import com.unishare.backend.DTO.Response.ReviewResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.service.ReviewService;
-import com.unishare.backend.model.Review;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +24,12 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getAllReviews() {
+    public ResponseEntity<ApiResponse<PageResponse<List<ReviewResponse>>>> getAllReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2147483647") int size
+    ) {
         try {
-            List<ReviewResponse> reviewResponses = reviewService.getAllReviews();
+            PageResponse<List<ReviewResponse>> reviewResponses = reviewService.getAllReviews(page, size);
             return ResponseEntity.ok(new ApiResponse<>(reviewResponses, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));

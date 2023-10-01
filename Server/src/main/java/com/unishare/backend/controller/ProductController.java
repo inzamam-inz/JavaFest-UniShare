@@ -1,11 +1,10 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
-import com.unishare.backend.DTO.Request.ProductRequest;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Response.ProductResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,10 +24,12 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
+    public ResponseEntity<ApiResponse<PageResponse<List<ProductResponse>>>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2147483647") int size) {
         try {
-            List<ProductResponse> products = productService.getAllProducts();
-            return ResponseEntity.ok(new ApiResponse<>(products, null));
+            PageResponse<List<ProductResponse>> productResponses = productService.getAllProducts(page, size);
+            return ResponseEntity.ok(new ApiResponse<>(productResponses, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }

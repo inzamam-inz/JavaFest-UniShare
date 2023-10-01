@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,14 +52,15 @@ public class NotificationService {
         throw new ErrorMessageException("Notification not found with ID: " + id);
     }
 
-    public NotificationResponse createNotification(NotificationRequest notificationRequest) {
+    public void createNotification(Long sender, Long receiver, String message) {
         Notification notification = new Notification();
-        notification.setMessage(notificationRequest.getMessage());
-        notification.setSender(userRepository.findById(notificationRequest.getSenderId())
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + notificationRequest.getSenderId())));
-        notification.setReceiver(userRepository.findById(notificationRequest.getReceiverId())
-                .orElseThrow(() -> new ErrorMessageException("Receiver not found with ID: " + notificationRequest.getReceiverId())));
-        return makeNotificationResponse(notificationRepository.save(notification));
+        notification.setMessage(message);
+        notification.setSender(userRepository.findById(sender)
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + sender)));
+        notification.setReceiver(userRepository.findById(receiver)
+                .orElseThrow(() -> new ErrorMessageException("Receiver not found with ID: " + receiver)));
+        notification.setCreatedAt(new Date());
+        notificationRepository.save(notification);
     }
 
     public List<NotificationResponse> getNotificationsByReceiverId(Long receiverId) {
@@ -67,79 +69,48 @@ public class NotificationService {
     }
 
     public void sendNotificationOfPendingStatus(Long ownerId, Long borrowerId, Long productId) {
-        Notification notification = new Notification();
         String message = "Your product #ID" + productId.toString() + " has a new booking request by user @"
                 + borrowerId.toString() + ".\n"
                 + "Please check Booking Request page on Owner Dashboard for more details.";
-        notification.setMessage(message);
-        notification.setReceiver(userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
-        notification.setSender(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
-        notificationRepository.save(notification);
+
+        createNotification(borrowerId, ownerId, message);
     }
 
     public void sendNotificationOfAcceptedStatus(Long ownerId, Long borrowerId, Long productId) {
-        Notification notification = new Notification();
         String message = "Your booking request for product #ID" + productId.toString() + " has been accepted by user @"
                 + ownerId.toString() + ".\n"
                 + "Please check My Request page for more details.";
-        notification.setMessage(message);
-        notification.setSender(userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
-        notification.setReceiver(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
-        notificationRepository.save(notification);
+
+        createNotification(ownerId, borrowerId, message);
     }
 
     public void sendNotificationOfRejectedStatus(Long ownerId, Long borrowerId, Long productId) {
-        Notification notification = new Notification();
         String message = "Your booking request for product #ID" + productId.toString() + " has been rejected by user @"
                 + ownerId.toString() + ".\n"
                 + "Please check My Request page for more details.";
-        notification.setMessage(message);
-        notification.setSender(userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
-        notification.setReceiver(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
-        notificationRepository.save(notification);
+        createNotification(ownerId, borrowerId, message);
     }
 
     public void sendNotificationOfLentStatus(Long ownerId, Long borrowerId, Long productId) {
-        Notification notification = new Notification();
         String message = "Your product #ID" + productId.toString() + " has been lent to user @"
                 + borrowerId.toString() + ".\n"
                 + "Please check Booking Request page on Owner Dashboard for more details.";
-        notification.setMessage(message);
-        notification.setReceiver(userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
-        notification.setSender(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
-        notificationRepository.save(notification);
+
+        createNotification(borrowerId, ownerId, message);
     }
 
     public void sendNotificationOfCancelledStatus(Long ownerId, Long borrowerId, Long productId) {
-        Notification notification = new Notification();
         String message = "Booking request for product #ID" + productId.toString() + " has been cancelled by user @"
                 + borrowerId.toString() + ".\n"
                 + "Please check Booking Request page on Borrower Dashboard for more details.";
-        notification.setMessage(message);
-        notification.setReceiver(userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
-        notification.setSender(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
-        notificationRepository.save(notification);
+
+        createNotification(borrowerId, ownerId, message);
     }
 
     public void sendNotificationOfCompletedStatus(Long ownerId, Long borrowerId, Long productId) {
-        Notification notification = new Notification();
         String message = "Thank you! The rental has been completed for product #ID" + productId.toString() + ".\n"
                 + "Please check My Request page for more details.";
-        notification.setMessage(message);
-        notification.setSender(userRepository.findById(ownerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + ownerId)));
-        notification.setReceiver(userRepository.findById(borrowerId)
-                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId)));
-        notificationRepository.save(notification);
+
+        createNotification(ownerId, borrowerId, message);
     }
 }

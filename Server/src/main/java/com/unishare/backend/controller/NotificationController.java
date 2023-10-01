@@ -1,8 +1,7 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Response.NotificationResponse;
-import com.unishare.backend.service.JwtService;
 import com.unishare.backend.service.NotificationService;
 import com.unishare.backend.service.UserService;
 import lombok.AllArgsConstructor;

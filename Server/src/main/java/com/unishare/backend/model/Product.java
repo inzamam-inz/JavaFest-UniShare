@@ -65,4 +65,29 @@ public class Product {
 //    @JoinColumn(name = "category_id")
 //    public Category category;
 
+//    @Override
+//    public String toString() {
+//        String bookings = "[ ";
+//        for (Booking booking : this.bookings) {
+//            bookings += booking.toString() + "\n";
+//        }
+//        bookings += " ]";
+//        return "sProduct{" +
+//                "id=" + id +
+//                ", name='" + name + '\'' +
+//                ", description='" + description + '\'' +
+//                ", marketPrice='" + marketPrice + '\'' +
+//                ", basePrice='" + basePrice + '\'' +
+//                ", perDayPrice='" + perDayPrice + '\'' +
+//                ", status='" + status + '\'' +
+//                ", isRestricted='" + isRestricted + '\'' +
+//                ", image1='" + image1 + '\'' +
+//                ", image2='" + image2 + '\'' +
+//                ", image3='" + image3 + '\'' +
+//                ", owner='" + owner + '\'' +
+//                ", category='" + category + '\'' +
+//                ", bookings='" + bookings + '\'' +
+//                ", tags='" + tags + '\'' +
+//                '}';
+//    }
 }

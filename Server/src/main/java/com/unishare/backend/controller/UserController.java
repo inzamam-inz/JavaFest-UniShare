@@ -1,20 +1,19 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.UserUpdateRequest;
 import com.unishare.backend.DTO.Response.UserResponse;
-import com.unishare.backend.exceptionHandlers.ErrorMessageException;
-import com.unishare.backend.model.User;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.repository.UserRepository;
 import com.unishare.backend.service.JwtService;
 import com.unishare.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 
@@ -35,11 +34,13 @@ public class UserController {
     }
 
     @GetMapping()
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<PageResponse<List<UserResponse>>>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2147483647") int size) {
         try {
-            List<UserResponse> users = userService.getAllUsers();
-            return ResponseEntity.ok(new ApiResponse<>(users, null));
+            PageResponse<List<UserResponse>> userResponses = userService.getAllUsers(page, size);
+            return ResponseEntity.ok(new ApiResponse<>(userResponses, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }

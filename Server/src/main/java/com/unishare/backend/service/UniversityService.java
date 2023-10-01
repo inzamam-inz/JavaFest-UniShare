@@ -1,6 +1,7 @@
 package com.unishare.backend.service;
 
 import com.unishare.backend.DTO.Response.UniversityResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.model.University;
 import com.unishare.backend.repository.UniversityRepository;
@@ -8,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,11 +29,19 @@ public class UniversityService {
     }
 
     @Cacheable("university-all")
-    public List<UniversityResponse> getAllUniversities() {
-        List<University> universities = universityRepository.findAll();
-        return universities.stream()
+    public PageResponse<List<UniversityResponse>> getAllUniversities(int page, int size) {
+        Page<University> universityPage = universityRepository.getUnisPage(PageRequest.of(page, size));
+
+        PageResponse<List<UniversityResponse>> pageResponse = new PageResponse<>();
+        List<UniversityResponse> universities = universityPage.stream()
                 .map(uni -> new UniversityResponse(uni.getId(), uni.getUniversityName()))
                 .collect(Collectors.toList());
+        pageResponse.setData(universities);
+        pageResponse.setTotalPages(universityPage.getTotalPages());
+        pageResponse.setTotalElements(universityPage.getTotalElements());
+        pageResponse.setCurrentPage(universityPage.getNumber());
+        pageResponse.setCurrentElements(universityPage.getNumberOfElements());
+        return pageResponse;
     }
 
     @Cacheable("university-#id")

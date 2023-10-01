@@ -1,6 +1,6 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.CategoryRequest;
 import com.unishare.backend.DTO.Response.CategoryResponse;
 import com.unishare.backend.service.CategoryService;

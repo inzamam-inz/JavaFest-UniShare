@@ -1,6 +1,6 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
 import com.unishare.backend.DTO.Response.UserResponse;

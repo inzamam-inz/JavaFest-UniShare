@@ -51,11 +51,22 @@ public class BookingsService {
         return bookings.stream().map(this::convertToResponse).collect(Collectors.toList());
     }
 
+    public Product getProductById(Long id) {
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            return productOptional.get();
+        }
+        throw new RuntimeException("Product not found with ID: " + id);
+    }
+
     public Boolean createBooking(String token, BookingRequest bookingRequest) {
         Long borrowerId = userService.getUserIdFromToken(token);
 
-        Product product = productRepository.findById(bookingRequest.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingRequest.getProductId()));
+        Long productId = bookingRequest.getProductId();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
+
+        System.out.println("Product: " + product.toString());
 
         User borrower = userRepository.findById(borrowerId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + borrowerId));
@@ -206,7 +217,7 @@ public class BookingsService {
     }
 
     private ProductResponse convertProductToResponse(Product product) {
-        List<Long> bookingIds = product.getBookings().stream()
+        List<Long> bookingIds = bookingRepository.findAllByProductId(product.getId()).stream()
                 .map(Booking::getId)
                 .collect(Collectors.toList());
 
