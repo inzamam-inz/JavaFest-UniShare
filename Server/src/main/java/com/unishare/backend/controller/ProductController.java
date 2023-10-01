@@ -77,18 +77,6 @@ public class ProductController {
         }
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
-//        try {
-//            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
-//            return updatedProduct != null
-//                    ? ResponseEntity.ok(new ApiResponse<>(updatedProduct, null))
-//                    : ResponseEntity.notFound().build();
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-//        }
-//    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
         try {
@@ -169,5 +157,14 @@ public class ProductController {
         }
     }
 
+    @PostMapping("/restricted/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> restrictProduct(@PathVariable Long id) {
+        try {
+            Boolean flag = productService.restrictProduct(id);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
 
 }
