@@ -45,20 +45,12 @@ public class ProductController {
         }
     }
 
-//    @PostMapping("/create")
-//    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest product) {
-//        try {
-//            ProductResponse createdProduct = productService.createProduct(product);
-//            return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-//        }
-//    }
-
     @PostMapping()
     public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImage(
             @RequestHeader("Authorization") String token,
-            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam("image0") MultipartFile image0,
+            @RequestParam(value = "image1", required = false) MultipartFile image1,
+            @RequestParam(value = "image2", required = false) MultipartFile image2,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("marketPrice") Double marketPrice,
@@ -67,9 +59,9 @@ public class ProductController {
             @RequestParam("categoryId") Long categoryId
     ) {
         try {
-            if (images.size() > 3 || images.size() < 1) {
-                return ResponseEntity.badRequest().body(new ApiResponse<>(null, "Images must be between 1 and 3"));
-            }
+            List<MultipartFile> images = List.of(image0);
+            if (image1 != null) images.add(image1);
+            if (image2 != null) images.add(image2);
             ProductResponse createdProduct = productService.createProductWithImage(images, name, description, marketPrice, price, perDayPrice, categoryId, token);
             return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
         } catch (Exception e) {

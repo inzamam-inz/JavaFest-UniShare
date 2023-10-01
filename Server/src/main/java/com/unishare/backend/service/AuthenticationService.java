@@ -1,10 +1,13 @@
 package com.unishare.backend.service;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
+import com.unishare.backend.DTO.Response.IdVerificationResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.model.*;
 
@@ -19,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,7 @@ public class AuthenticationService {
     private final UserService userService;
     private final UniversityRepository universityRepository;
     private final CloudinaryImageService cloudinaryImageService;
+    private final MLService mlService;
 
     @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
     public UserResponse register(RegisterRequest request, String OTP) {
@@ -271,5 +277,75 @@ public class AuthenticationService {
 
         String OTP = user.getOTP();
         mailSendingService.sendOTPMail(email, OTP);
+    }
+
+    public String verifyMe(String token) {
+        User user = this.userRepository.findByEmail(jwtService.extractEmailFromBearerToken(token))
+                .orElseThrow(() -> new ErrorMessageException("Ops, Invalid email address."));
+
+        if (user.getIsVerified()) {
+            return "Email is already verified.";
+        }
+
+        try {
+            Optional<University> university = universityRepository.findById(user.getUniversity().getId());
+            if (university.isEmpty()) {
+                return "University is not found.";
+            }
+            String universityName = university.get().getUniversityName();
+            String idCardUrl = user.getIdCard();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String logoResponse = mlService.getLogo(idCardUrl);
+            JsonNode logoNode = objectMapper.readTree(logoResponse);
+
+            JsonNode itemsNode = logoNode
+                    .get("google")
+                    .get("items");
+
+            boolean universityMatched = false;
+
+            if (itemsNode.isArray()) {
+                for (JsonNode itemNode : itemsNode) {
+                    String description = itemNode.get("description").asText();
+                    if (description.equals(universityName)) {
+                        universityMatched = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!universityMatched) {
+                return "ID card is not authorized.";
+            }
+
+            String profilePictureUrl = user.getProfilePicture();
+            String faceResponse = mlService.getFaceCompare(idCardUrl, profilePictureUrl);
+            JsonNode faceNode = objectMapper.readTree(faceResponse);
+
+            itemsNode = faceNode
+                    .get("facepp")
+                    .get("items");
+
+            double maxConfidence = 0;
+            if (itemsNode.isArray()) {
+                for (JsonNode itemNode : itemsNode) {
+                    double confidence = itemNode.get("confidence").asDouble();
+                    maxConfidence = Math.max(maxConfidence, confidence);
+                }
+            }
+
+            if (maxConfidence < .70) {
+                return "Sorry, Id card face and profile picture face didn't match.";
+            }
+
+            user.setIsVerified(true);
+            userRepository.save(user);
+
+            return "Successfully verified.";
+        } catch (Exception e) {
+            throw new ErrorMessageException("Sorry, Something went wrong.");
+        }
     }
 }

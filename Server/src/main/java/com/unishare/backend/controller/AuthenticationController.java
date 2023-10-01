@@ -118,5 +118,17 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }
+
+    @PostMapping("/verify-me")
+    public ResponseEntity<ApiResponse<String>> verifyMe(
+            @RequestHeader("Authorization") String token
+    ) {
+        try {
+            return ResponseEntity.ok(new ApiResponse<>(service.verifyMe(token), null));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
 }
 
