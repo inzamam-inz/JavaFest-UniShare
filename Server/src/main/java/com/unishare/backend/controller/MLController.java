@@ -122,7 +122,7 @@ public class MLController {
         return null;
     }
 
-    public String getLogo(String idCardUrl) {
+    private String getLogo(String idCardUrl) {
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json");
@@ -147,7 +147,7 @@ public class MLController {
         }
     }
 
-    public String getFaceCompare(String idCardUrl, String profilePictureUrl) {
+    private String getFaceCompare(String idCardUrl, String profilePictureUrl) {
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json");
