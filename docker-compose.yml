@@ -13,3 +13,9 @@ services:
       - "3000:3000"
     links:
       - unishare-back-end
+  
+  unishare-redis:
+    image: "redis"
+    container_name: unishare-redis
+    ports:
+      - "6379:6379"

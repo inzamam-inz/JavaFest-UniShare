@@ -12,14 +12,25 @@ const ImageUpload = ({ label, onImageChange, currentImage }) => {
       {currentImage ? (
         // Display the image preview
         <div className="flex justify-center ">
-          <Card sx={{ maxWidth: 250, maxHeight: 150 }}>
-            <CardMedia
-              component="img"
-              alt={`${label} Preview`}
-              height="140"
-              image={URL.createObjectURL(currentImage)}
-            />
-          </Card>
+          {typeof currentImage !== 'string' ? (
+            <Card sx={{ maxWidth: 250, maxHeight: 150 }}>
+              <CardMedia
+                component="img"
+                alt={`${label} Preview`}
+                height="140"
+                image={URL.createObjectURL(currentImage)}
+              />
+            </Card>
+          ) : (
+            <Card sx={{ maxWidth: 250, maxHeight: 150 }}>
+              <CardMedia
+                component="img"
+                alt={`${label} Preview`}
+                height="140"
+                image={currentImage}
+              />
+            </Card>
+          )}
         </div>
       ) : (
         // Display the default image

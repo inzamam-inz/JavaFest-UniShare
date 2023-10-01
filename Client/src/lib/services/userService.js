@@ -24,6 +24,7 @@ const UserService = {
   delete: (id) => {
     return api.deleteAsync(`/users/${id}`);
   },
+
 };
 
 export default UserService;

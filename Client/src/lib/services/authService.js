@@ -37,6 +37,12 @@ const AuthService = {
   resetPassword: (data) => {
     return api.postAsync(`/auth/password-reset`, data);
   },
+  sendVerificationEmail: () => {
+    return api.postAsync(`/auth/email-verification-otp`);
+  },
+  verifyEmail: (data) => {
+    return api.postAsync(`/auth/email-verification`, data);
+  },
 };
 
 export default AuthService;

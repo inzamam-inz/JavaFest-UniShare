@@ -4,7 +4,7 @@ import AuthService from "@/lib/services/authService";
 import { setIsAuthenticated } from "@/store/Slices/userSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -42,6 +42,12 @@ const page = () => {
         toast.error(err.message);
       });
   };
+  
+  useEffect(() => {
+    if (localStorage.getItem("jwt_token")) {
+      router.push("/dashboard/storefront/home");
+    }
+  }, []);
 
   return (
     <section className="bg-gray-50 dark:bg-gray-100">
