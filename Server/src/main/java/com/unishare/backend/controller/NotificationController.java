@@ -1,7 +1,9 @@
 package com.unishare.backend.controller;
 
+import com.unishare.backend.DTO.Response.UniversityResponse;
 import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Response.NotificationResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.service.NotificationService;
 import com.unishare.backend.service.UserService;
 import lombok.AllArgsConstructor;
@@ -28,6 +30,7 @@ public class NotificationController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }
+
 
     @GetMapping()
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotificationByUserId(@RequestHeader("Authorization") String token) {

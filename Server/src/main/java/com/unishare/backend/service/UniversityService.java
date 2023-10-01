@@ -30,6 +30,7 @@ public class UniversityService {
 
     @Cacheable("university-all")
     public PageResponse<List<UniversityResponse>> getAllUniversities(int page, int size) {
+        if (size == Integer.MAX_VALUE) page = 0;
         Page<University> universityPage = universityRepository.getUnisPage(PageRequest.of(page, size));
 
         PageResponse<List<UniversityResponse>> pageResponse = new PageResponse<>();

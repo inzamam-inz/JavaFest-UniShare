@@ -55,6 +55,7 @@ public class ProductService {
 
     @Cacheable("product-all")
     public PageResponse<List<ProductResponse>> getAllProducts(int page, int size) {
+        if (size == Integer.MAX_VALUE) page = 0;
         Page<Product> pageResponse = productRepository.getProductsPage(PageRequest.of(page, size));
 
         PageResponse<List<ProductResponse>> pageResponses = new PageResponse<>();

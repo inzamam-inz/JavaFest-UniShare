@@ -47,6 +47,7 @@ public class UserService {
 
     @Cacheable("user-all")
     public PageResponse<List<UserResponse>> getAllUsers(int page, int size) {
+        if (size == Integer.MAX_VALUE) page = 0;
         Page<User> userPage = userRepository.getUsersPage(PageRequest.of(page, size));
 
         PageResponse<List<UserResponse>> pageResponse = new PageResponse<>();

@@ -42,6 +42,7 @@ public class ReviewService {
 
     @Cacheable("review-all")
     public PageResponse<List<ReviewResponse>> getAllReviews(int page, int size) {
+        if (size == Integer.MAX_VALUE) page = 0;
         Page<Review> reviewPage = reviewRepository.getReviewsPage(PageRequest.of(size, page));
 
         PageResponse<List<ReviewResponse>> pageResponse = new PageResponse<>();

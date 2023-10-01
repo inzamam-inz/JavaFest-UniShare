@@ -13,6 +13,7 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    Product findProductById(Long id);
     List<Product> findAllByCategoryId(Long categoryId);
     List<Product> findAllByOwnerId(Long categoryId);
     List<Product> findAllByStatus(String status);

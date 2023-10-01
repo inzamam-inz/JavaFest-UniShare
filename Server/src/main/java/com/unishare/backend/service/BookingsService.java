@@ -4,6 +4,7 @@ import com.unishare.backend.DTO.Request.BookingRequest;
 import com.unishare.backend.DTO.Response.BookingResponse;
 import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
+import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Booking;
@@ -30,6 +31,7 @@ public class BookingsService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final ProductService productService;
 
 
     public List<BookingResponse> getAllBookings() {
@@ -62,19 +64,19 @@ public class BookingsService {
     public Boolean createBooking(String token, BookingRequest bookingRequest) {
         Long borrowerId = userService.getUserIdFromToken(token);
 
-        Long productId = bookingRequest.getProductId();
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
-
-        System.out.println("Product: " + product.toString());
+        ProductResponse productResponse = productService.getProductById(bookingRequest.getProductId());
+        Product product = new Product();
+        product.setId(productResponse.getProductId());
+        product.setName(productResponse.getName());
+        product.setDescription(productResponse.getDescription());
+        product.setBasePrice(productResponse.getBasePrice());
+        product.setStatus(productResponse.getStatus());
+        product.setOwner(new User());
+        product.getOwner().setId(productResponse.getOwnerId());
 
         User borrower = userRepository.findById(borrowerId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + borrowerId));
-
-        if (!isProductAvailable(bookingRequest.getProductId(), bookingRequest)) {
-            throw new RuntimeException("Product is not available in this time frame");
-        }
-
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId));
+        
         Booking booking = new Booking();
         booking.setRentFrom(bookingRequest.getRentFrom());
         booking.setRentTo(bookingRequest.getRentTo());
