@@ -42,14 +42,14 @@ public class ProductService {
         Page<Product> pageResponse = productRepository.getProductsPage(PageRequest.of(page, size));
 
         PageResponse<List<ProductResponse>> pageResponses = new PageResponse<>();
-        List<ProductResponse> products = pageResponse.getContent().stream()
-                .filter(product -> !product.getIsRestricted())
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
-        // all products are shown
 //        List<ProductResponse> products = pageResponse.getContent().stream()
+//                .filter(product -> (!product.getIsRestricted() || product.getIsRestricted() == null))
 //                .map(this::convertToResponse)
 //                .collect(Collectors.toList());
+        // all products are shown
+        List<ProductResponse> products = pageResponse.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
 
 
         pageResponses.setData(products);
