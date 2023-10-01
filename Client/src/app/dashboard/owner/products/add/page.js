@@ -22,14 +22,13 @@ const Page = () => {
     description: "",
     categoryId: "",
     price: 0,
-    image1: "",
-    image2: "",
-    image3: "",
+    image1: null,
+    image2: null,
+    image3: null,
     marketPrice: 0,
   });
 
   const handleSubmit = () => {
-
     const formData = new FormData();
     formData.append("name", productForm.name);
     formData.append("perDayPrice", productForm.pricePerDay);
@@ -37,9 +36,9 @@ const Page = () => {
     formData.append("categoryId", productForm.categoryId);
     formData.append("marketPrice", productForm.marketPrice);
     formData.append("price", productForm.price);
-    formData.append("image1", productForm.image1);
-    formData.append("image2", productForm.image2);
-    formData.append("image3", productForm.image3);
+    formData.append("image0", productForm.image1);
+    formData.append("image1", productForm.image2);
+    formData.append("image2", productForm.image3);
     ProductService.create(formData).then((res) => {
       ProductService.getByUser(user?.id).then((res) => {
         dispatch(setMyProducts(res));
@@ -258,7 +257,7 @@ const Page = () => {
                     }
                     currentImage={productForm.image1}
                   />
-                  <ImageUpload
+                  {/* <ImageUpload
                     label={" Image"}
                     onImageChange={(e) =>
                       setProductForm({
@@ -277,7 +276,7 @@ const Page = () => {
                       })
                     }
                     currentImage={productForm.image3}
-                  />
+                  /> */}
                 </div>
               </div>
             </div>

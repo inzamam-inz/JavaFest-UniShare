@@ -87,9 +87,9 @@ const Page = () => {
   };
 
   const autoVerify = () => {
-    UserService.autoVerify(user?.id)
+    UserService.autoVerify()
       .then((res) => {
-        toast.success("Email verified successfully");
+        toast.success(res);
       })
       .catch((err) => {
         toast.error(err.message);
