@@ -17,6 +17,7 @@ import com.unishare.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,6 +40,7 @@ public class AuthenticationService {
     private final UniversityRepository universityRepository;
     private final CloudinaryImageService cloudinaryImageService;
 
+    @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
     public UserResponse register(RegisterRequest request, String OTP) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ErrorMessageException("This email address have already an account.");
@@ -215,6 +217,8 @@ public class AuthenticationService {
         }
     }
 
+
+    @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
     public UserResponse register(MultipartFile idCard, MultipartFile profilePicture, String fullName, String password, String email, String address, String phoneNumber, Double lat, Double lng, Long university, String otp) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ErrorMessageException("This email address have already an account.");

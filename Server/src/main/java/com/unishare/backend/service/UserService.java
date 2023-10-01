@@ -109,6 +109,8 @@ public class UserService {
         return makeUserResponse(user);
     }
 
+
+    @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
     private boolean canBeRestricted(Product product) {
         List<Booking> bookings = bookingRepository.findAllByProductId(product.getId());
         for (Booking booking : bookings) {
