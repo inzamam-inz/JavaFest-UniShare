@@ -1,6 +1,5 @@
 "use client";
 import CommonTable from "@/components/GlobalComponents/CommonTable";
-import Pagination from "@/components/GlobalComponents/Pagination";
 import PageHeader from "@/components/OwnerComponents/PageHeader";
 import UniversityService from "@/lib/services/universityService";
 import { setUniversity } from "@/store/Slices/universitySlice";
@@ -93,13 +92,13 @@ const Page = () => {
           },
         ]}
       />
-      <Pagination
+      {/* <Pagination
         postsPerPage={postsPerPage}
         totalPosts={university?.length}
         paginateBack={paginateBack}
         paginateFront={paginateFront}
         currentPage={currentPage}
-      />
+      /> */}
     </div>
   );
 };

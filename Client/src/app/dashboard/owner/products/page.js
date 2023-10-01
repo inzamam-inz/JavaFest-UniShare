@@ -13,6 +13,19 @@ const Page = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.currentUser);
 
+  const handleRestrict = (e, id) => {
+    ProductService.restrict(id)
+      .then((res) => {
+        toast.success("Product restricted successfully");
+        ProductService.getByUser(user?.id).then((res) => {
+          dispatch(setMyProducts(res));
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
     if (!products && user) {
       ProductService.getByUser(user?.id).then((res) => {
@@ -57,13 +70,17 @@ const Page = () => {
             };
           })
         }
-        actions={[
-          {
-            name: "Delete",
-            type: "delete",
-            onClick: () => {},
-          },
-        ]}
+        actions={
+          [
+            // {
+            //   name: "Delete",
+            //   type: "delete",
+            //   onClick: (e, id) => {
+            //     handleRestrict(e, id);
+            //   },
+            // },
+          ]
+        }
       />
     </>
   );

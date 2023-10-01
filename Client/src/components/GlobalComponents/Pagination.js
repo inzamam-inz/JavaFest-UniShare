@@ -3,17 +3,18 @@ export default function Pagination({
   totalPosts,
   paginateFront,
   paginateBack,
-  currentPage,
+  startIndex,
+  endIndex,
 }) {
   return (
     <div className="py-4 flex flex-col items-center justify-center">
       <div className="text-sm text-gray-700 mb-2">
         Showing
         <span className="font-medium px-2">
-          {currentPage * postsPerPage - 10}
+          {startIndex }
         </span>
         to
-        <span className="font-medium px-2">{currentPage * postsPerPage}</span>
+        <span className="font-medium px-2">{endIndex}</span>
         of
         <span className="font-medium px-1">{totalPosts}</span>
         results

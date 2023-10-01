@@ -107,7 +107,7 @@ const Page = () => {
     //   });
     UniversityService.getAll()
       .then((res) => {
-        setUniversities(res);
+        setUniversities(res.data);
       })
       .catch((err) => {
         console.log(err);

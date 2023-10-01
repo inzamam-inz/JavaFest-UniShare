@@ -24,6 +24,9 @@ const ProductService = {
   getByUser: (id) => {
     return api.getAsync(`/products/owner/${id}`);
   },
+  restrict: (id) => {
+    return api.postAsync(`/products/restricted/${id}`);
+  },
 };
 
 export default ProductService;
