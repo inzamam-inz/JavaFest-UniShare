@@ -59,7 +59,8 @@ public class ProductController {
             @RequestParam("categoryId") Long categoryId
     ) {
         try {
-            List<MultipartFile> images = List.of(image0);
+            List<MultipartFile> images =new java.util.ArrayList<>();
+            images.add(image0);
             if (image1 != null) images.add(image1);
             if (image2 != null) images.add(image2);
             ProductResponse createdProduct = productService.createProductWithImage(images, name, description, marketPrice, price, perDayPrice, categoryId, token);
