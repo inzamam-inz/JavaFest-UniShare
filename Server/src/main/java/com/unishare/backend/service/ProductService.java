@@ -46,6 +46,11 @@ public class ProductService {
                 .filter(product -> !product.getIsRestricted())
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+        // all products are shown
+//        List<ProductResponse> products = pageResponse.getContent().stream()
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+
 
         pageResponses.setData(products);
         pageResponses.setTotalPages(pageResponse.getTotalPages());
@@ -160,6 +165,8 @@ public class ProductService {
         return response;
     }
 
+
+    @CacheEvict(value = {"product-#id", "product-all"}, allEntries = true)
     public ProductResponse createProductWithImage(List<MultipartFile> images, String name, String description, Double marketPrice, Double price, Double perDayPrice, Long categoryId, String token) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
@@ -174,6 +181,7 @@ public class ProductService {
         product.setStatus("Available");
         product.setOwner(owner);
         product.setCategory(category);
+        product.setIsRestricted(false);
 
         String imageUrl1 = cloudinaryImageService.getUploadedImageUrl(images.get(0));
         product.setImage1(imageUrl1);
