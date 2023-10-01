@@ -1,4 +1,4 @@
-package com.unishare.backend.DTO.ApiResponse;
+package com.unishare.backend.DTO.SpecialResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

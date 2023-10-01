@@ -2,10 +2,15 @@ package com.unishare.backend.service;
 
 import com.unishare.backend.DTO.Request.UserUpdateRequest;
 import com.unishare.backend.DTO.Response.UserResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.User;
 import com.unishare.backend.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,19 +44,40 @@ public class UserService {
                 user.getIsBlocked()
         );
     }
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
+
+    @Cacheable("user-all")
+    public PageResponse<List<UserResponse>> getAllUsers(int page, int size) {
+        if (size == Integer.MAX_VALUE) page = 0;
+        Page<User> userPage = userRepository.getUsersPage(PageRequest.of(page, size));
+
+        PageResponse<List<UserResponse>> pageResponse = new PageResponse<>();
+        List<UserResponse> users = userPage.stream()
                 .map(this::makeUserResponse)
                 .collect(Collectors.toList());
+        pageResponse.setData(users);
+        pageResponse.setTotalPages(userPage.getTotalPages());
+        pageResponse.setTotalElements(userPage.getTotalElements());
+        pageResponse.setCurrentPage(userPage.getNumber());
+        pageResponse.setCurrentElements(userPage.getNumberOfElements());
+        return pageResponse;
     }
 
+
+//    public List<UserResponse> getAllUsers() {
+//        List<User> users = userRepository.findAll();
+//        return users.stream()
+//                .map(this::makeUserResponse)
+//                .collect(Collectors.toList());
+//    }
+
+    @Cacheable("user-#id")
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));
         return makeUserResponse(user);
     }
 
+    @CacheEvict(value = {"user-all", "user-#id"}, allEntries = true)
     public UserResponse userProfileUpdate(UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findByEmail(userUpdateRequest.getEmail())
                 .orElseThrow(() -> new ErrorMessageException("Haven't any account with this email"));
@@ -63,6 +89,7 @@ public class UserService {
         return makeUserResponse(user);
     }
 
+    @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
     public UserResponse userBlockStatusUpdate(Long id, boolean isBlocked) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));
@@ -73,6 +100,7 @@ public class UserService {
         return makeUserResponse(user);
     }
 
+    @CacheEvict(value = {"user-#id", "user-all"}, allEntries = true)
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + id));

@@ -2,7 +2,7 @@ package com.unishare.backend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.MLServiceOneImageRequest;
 import com.unishare.backend.DTO.Request.MLServiceTwoImageRequest;
 import com.unishare.backend.DTO.Response.IdVerificationResponse;
