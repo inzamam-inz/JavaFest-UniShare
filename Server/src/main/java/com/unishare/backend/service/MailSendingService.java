@@ -23,7 +23,7 @@ public class MailSendingService {
 
     public void sendOTPMail(String toMail, String OTP) {
         String subject = "UniShare: Your OTP to Activate Your Account";
-        String body = "Thank you for choosing UniShare! Please use the following One-Time Password (OTP) to complete your sign-up process. The OTP is " + OTP;
+        String body = "Thank you for choosing UniShare! Please use the following One-Time Password (OTP) to complete your sign-up process. The OTP is " + OTP + ". Please do not share this OTP with anyone.";
 
         try {
             sendMail(toMail, subject, body);

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
-import com.unishare.backend.DTO.Response.IdVerificationResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
-import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.model.*;
 
@@ -22,7 +20,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -163,7 +160,7 @@ public class AuthenticationService {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = messageDigest.digest(verificationCode.getBytes());
 
-            return bytesToHex(hashedBytes);
+            return bytesToHex(hashedBytes).substring(0, Math.min(10, bytesToHex(hashedBytes).length()));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
