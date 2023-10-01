@@ -36,12 +36,9 @@ const Page = () => {
 
   useEffect(() => {
     if (!category) {
-      setLoading(true);
       CategoryService.getAll()
         .then((res) => {
-          console.log(res);
-          dispatch(setCategory(res));
-          setLoading(false);
+          dispatch(setCategory(res.data));
         })
         .catch((err) => {
           console.log(err);

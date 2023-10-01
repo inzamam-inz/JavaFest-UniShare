@@ -18,7 +18,7 @@ const Page = () => {
     if (!users) {
       UserService.getAll()
         .then((res) => {
-          dispatch(setUsers(res));
+          dispatch(setUsers(res.data));
         })
         .catch((err) => {
           console.log(err);

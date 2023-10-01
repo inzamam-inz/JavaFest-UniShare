@@ -4,16 +4,13 @@ import Pagination from "@/components/GlobalComponents/Pagination";
 import PageHeader from "@/components/OwnerComponents/PageHeader";
 import UniversityService from "@/lib/services/universityService";
 import { setUniversity } from "@/store/Slices/universitySlice";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const Page = () => {
   const { university } = useSelector((state) => state.university);
-  const router = useRouter();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(10);
   // Get current posts
@@ -36,11 +33,9 @@ const Page = () => {
 
   useEffect(() => {
     if (!university) {
-      setLoading(true);
       UniversityService.getAll()
         .then((res) => {
-          console.log(res);
-          dispatch(setUniversity(res));
+          dispatch(setUniversity(res.data));
           setLoading(false);
         })
         .catch((err) => {
