@@ -63,6 +63,11 @@ public class BookingsService {
 
     public Boolean createBooking(String token, BookingRequest bookingRequest) {
         Long borrowerId = userService.getUserIdFromToken(token);
+        User buser = userService.getUserByToken(token);
+
+        if (buser.getIsBlocked() || buser.getIsVerified() == false) {
+            throw new ErrorMessageException("You are not allowed to book products.");
+        }
 
         ProductResponse productResponse = productService.getProductById(bookingRequest.getProductId());
         Product product = new Product();

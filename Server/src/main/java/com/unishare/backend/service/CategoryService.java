@@ -50,13 +50,6 @@ public class CategoryService {
         return pageResponse;
     }
 
-//    public List<CategoryResponse> getAllCategories() {
-//        List<Category> categories = categoryRepository.findAll();
-//        return categories.stream()
-//                .map(category -> new CategoryResponse(category.getId(), category.getCategoryName(), category.getDescription()))
-//                .collect(Collectors.toList());
-//    }
-
     @Cacheable("category-#id")
     public CategoryResponse getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
