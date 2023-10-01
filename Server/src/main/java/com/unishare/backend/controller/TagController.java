@@ -1,8 +1,7 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.TagRequest;
-import com.unishare.backend.DTO.Response.CategoryResponse;
 import com.unishare.backend.DTO.Response.TagResponse;
 import com.unishare.backend.model.Tag;
 import com.unishare.backend.service.TagService;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController

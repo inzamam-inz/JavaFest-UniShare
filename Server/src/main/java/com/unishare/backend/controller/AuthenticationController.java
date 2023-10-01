@@ -1,6 +1,6 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.*;
 import com.unishare.backend.DTO.Response.AuthenticationResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
@@ -115,6 +115,18 @@ public class AuthenticationController {
             return ResponseEntity.ok(new ApiResponse<>("Password is successfully reset.", null));
         }
             catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-me")
+    public ResponseEntity<ApiResponse<String>> verifyMe(
+            @RequestHeader("Authorization") String token
+    ) {
+        try {
+            return ResponseEntity.ok(new ApiResponse<>(service.verifyMe(token), null));
+        }
+        catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }

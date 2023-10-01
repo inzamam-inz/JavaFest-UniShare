@@ -141,11 +141,14 @@ const Page = () => {
                     <span className="text-sm font-medium">Verify your ID Card</span>
                   </div>
                 </div>
-                <div className="flex items-center">
-                  <button className="bg-primary text-white font-bold py-2 px-4 rounded">
-                    Verify
-                  </button>
-                </div>
+                {user && user.verified && (
+                  <div className="flex items-center">
+                    <CheckBadgeIcon className="h-6 w-6 text-green-500" />
+                    <button className="bg-primary text-green-600 font-bold py-2 px-4 rounded">
+                      Verified
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

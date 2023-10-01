@@ -19,7 +19,7 @@ const Page = () => {
         getBookings();
       })
       .catch((err) => {
-        console.log(err);
+        toast.error(err.message);
       });
   };
   const handleReject = (id) => {

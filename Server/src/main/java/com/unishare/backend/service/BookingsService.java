@@ -4,6 +4,7 @@ import com.unishare.backend.DTO.Request.BookingRequest;
 import com.unishare.backend.DTO.Response.BookingResponse;
 import com.unishare.backend.DTO.Response.ProductResponse;
 import com.unishare.backend.DTO.Response.UserResponse;
+import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
 import com.unishare.backend.model.Booking;
@@ -30,6 +31,7 @@ public class BookingsService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final ProductService productService;
 
 
     public List<BookingResponse> getAllBookings() {
@@ -51,17 +53,41 @@ public class BookingsService {
         return bookings.stream().map(this::convertToResponse).collect(Collectors.toList());
     }
 
+    public Product getProductById(Long id) {
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            return productOptional.get();
+        }
+        throw new RuntimeException("Product not found with ID: " + id);
+    }
+
     public Boolean createBooking(String token, BookingRequest bookingRequest) {
         Long borrowerId = userService.getUserIdFromToken(token);
+        User buser = userService.getUserByToken(token);
 
-        Product product = productRepository.findById(bookingRequest.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + bookingRequest.getProductId()));
+        if (buser.getIsBlocked() || buser.getIsVerified() == false) {
+            throw new ErrorMessageException("You are not allowed to book products.");
+        }
+
+        ProductResponse productResponse = productService.getProductById(bookingRequest.getProductId());
+        Product product = new Product();
+        product.setId(productResponse.getProductId());
+        product.setName(productResponse.getName());
+        product.setDescription(productResponse.getDescription());
+        product.setBasePrice(productResponse.getBasePrice());
+        product.setStatus(productResponse.getStatus());
+        product.setOwner(new User());
+        product.getOwner().setId(productResponse.getOwnerId());
 
         User borrower = userRepository.findById(borrowerId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + borrowerId));
+                .orElseThrow(() -> new ErrorMessageException("User not found with ID: " + borrowerId));
 
-        if (!isProductAvailable(bookingRequest.getProductId(), bookingRequest)) {
-            throw new RuntimeException("Product is not available in this time frame");
+        if (!isProductAvailable(product.getId(), bookingRequest)) {
+            throw new RuntimeException("Product is not available for the requested dates");
+        }
+
+        if (borrowerId.equals(product.getOwner().getId())) {
+            throw new RuntimeException("Cannot book your own product");
         }
 
         Booking booking = new Booking();
@@ -206,7 +232,7 @@ public class BookingsService {
     }
 
     private ProductResponse convertProductToResponse(Product product) {
-        List<Long> bookingIds = product.getBookings().stream()
+        List<Long> bookingIds = bookingRepository.findAllByProductId(product.getId()).stream()
                 .map(Booking::getId)
                 .collect(Collectors.toList());
 

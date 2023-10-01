@@ -35,11 +35,30 @@ const Page = () => {
     }
   };
 
+  const handleRestrict = (e, id) => {
+    e.preventDefault();
+    ProductService.restrict(id)
+      .then((res) => {
+        toast.success("Product restricted successfully");
+        ProductService.getAll()
+          .then((res) => {
+            dispatch(setProduct(res.data));
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        toast.error("Something went wrong");
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
     if (!product) {
       ProductService.getAll()
         .then((res) => {
-          dispatch(setProduct(res));
+          dispatch(setProduct(res.data));
         })
         .catch((err) => {
           console.log(err);
@@ -72,7 +91,7 @@ const Page = () => {
             name: "Restrict",
             type: "block",
             onClick: (e, id) => {
-              console.log("Resticted");
+              handleRestrict(e, id);
             },
           },
         ]}

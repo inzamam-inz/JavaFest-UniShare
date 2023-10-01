@@ -1,11 +1,10 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
-import com.unishare.backend.DTO.Request.ProductRequest;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Response.ProductResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,10 +24,12 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
+    public ResponseEntity<ApiResponse<PageResponse<List<ProductResponse>>>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2147483647") int size) {
         try {
-            List<ProductResponse> products = productService.getAllProducts();
-            return ResponseEntity.ok(new ApiResponse<>(products, null));
+            PageResponse<List<ProductResponse>> productResponses = productService.getAllProducts(page, size);
+            return ResponseEntity.ok(new ApiResponse<>(productResponses, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
@@ -44,20 +45,12 @@ public class ProductController {
         }
     }
 
-//    @PostMapping("/create")
-//    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest product) {
-//        try {
-//            ProductResponse createdProduct = productService.createProduct(product);
-//            return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-//        }
-//    }
-
     @PostMapping()
     public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImage(
             @RequestHeader("Authorization") String token,
-            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam("image0") MultipartFile image0,
+            @RequestParam(value = "image1", required = false) MultipartFile image1,
+            @RequestParam(value = "image2", required = false) MultipartFile image2,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("marketPrice") Double marketPrice,
@@ -66,27 +59,16 @@ public class ProductController {
             @RequestParam("categoryId") Long categoryId
     ) {
         try {
-            if (images.size() > 3 || images.size() < 1) {
-                return ResponseEntity.badRequest().body(new ApiResponse<>(null, "Images must be between 1 and 3"));
-            }
+            List<MultipartFile> images =new java.util.ArrayList<>();
+            images.add(image0);
+            if (image1 != null) images.add(image1);
+            if (image2 != null) images.add(image2);
             ProductResponse createdProduct = productService.createProductWithImage(images, name, description, marketPrice, price, perDayPrice, categoryId, token);
             return ResponseEntity.ok(new ApiResponse<>(createdProduct, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }
     }
-
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
-//        try {
-//            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
-//            return updatedProduct != null
-//                    ? ResponseEntity.ok(new ApiResponse<>(updatedProduct, null))
-//                    : ResponseEntity.notFound().build();
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
-//        }
-//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
@@ -168,5 +150,14 @@ public class ProductController {
         }
     }
 
+    @PostMapping("/restricted/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> restrictProduct(@PathVariable Long id) {
+        try {
+            Boolean flag = productService.restrictProduct(id);
+            return ResponseEntity.ok(new ApiResponse<>(flag, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
 
 }

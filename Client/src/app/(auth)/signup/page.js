@@ -148,7 +148,7 @@ export default function SignUp() {
     // Get the user's location when the component mounts
     if (availableUniversities === null) {
       UniversityService.getAll().then((res) => {
-        dispatch(setUniversity(res));
+        dispatch(setUniversity(res.data));
       });
     }
 
@@ -384,13 +384,6 @@ export default function SignUp() {
                         center={userLocation} // Center the map on the user's location
                         className="h-screen	"
                         onClick={handleMapClick} // Attach the click event handler
-                        onGoogleApiLoaded={({ map, maps }) => {
-                          new maps.Marker({
-                            position: userLocation,
-                            map,
-                            title: "Click Me!",
-                          });
-                        }}
                       >
                         {userLocation && (
                           <div lat={userLocation.lat} lng={userLocation.lng}>

@@ -18,7 +18,7 @@ export default function page() {
   useEffect(() => {
     if (!products && user) {
       ProductService.getAll().then((res) => {
-        dispatch(setProduct(res));
+        dispatch(setProduct(res.data));
       });
     }
   }, [products, user, dispatch]);

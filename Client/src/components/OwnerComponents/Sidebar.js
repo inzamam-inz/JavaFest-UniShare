@@ -3,8 +3,6 @@
 
 import {
   CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
   Square2StackIcon,
@@ -59,13 +57,13 @@ const Sidebar = () => {
       icon: CalendarIcon,
       current: false,
     },
-    {
-      name: "Reviews",
-      href: "#",
-      icon: DocumentDuplicateIcon,
-      current: false,
-    },
-    { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
+    // {
+    //   name: "Reviews",
+    //   href: "#",
+    //   icon: DocumentDuplicateIcon,
+    //   current: false,
+    // },
+    // { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
   ]);
   const router = useRouter();
 

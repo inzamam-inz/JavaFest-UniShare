@@ -87,9 +87,9 @@ const Page = () => {
   };
 
   const autoVerify = () => {
-    UserService.autoVerify(user?.id)
+    UserService.autoVerify()
       .then((res) => {
-        toast.success("Email verified successfully");
+        toast.success(res);
       })
       .catch((err) => {
         toast.error(err.message);
@@ -107,7 +107,7 @@ const Page = () => {
     //   });
     UniversityService.getAll()
       .then((res) => {
-        setUniversities(res);
+        setUniversities(res.data);
       })
       .catch((err) => {
         console.log(err);

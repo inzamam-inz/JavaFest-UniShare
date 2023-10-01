@@ -11,8 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
-@Getter
-@Setter
 @Entity
 @Builder
 @NoArgsConstructor

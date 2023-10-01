@@ -1,8 +1,10 @@
 package com.unishare.backend.controller;
 
-import com.unishare.backend.DTO.ApiResponse.ApiResponse;
+import com.unishare.backend.DTO.Response.UniversityResponse;
+import com.unishare.backend.DTO.SpecialResponse.ApiResponse;
 import com.unishare.backend.DTO.Request.CategoryRequest;
 import com.unishare.backend.DTO.Response.CategoryResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +25,12 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories() {
+    ResponseEntity<ApiResponse<PageResponse<List<CategoryResponse>>>> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2147483647") int size) {
         try {
-            List<CategoryResponse> categoryResponseList = categoryService.getAllCategories();
-            return ResponseEntity.ok(new ApiResponse<>(categoryResponseList, null));
+            PageResponse<List<CategoryResponse>> categoryResponses = categoryService.getAllCategories(page, size);
+            return ResponseEntity.ok(new ApiResponse<>(categoryResponses, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }

@@ -28,7 +28,7 @@ const Page = () => {
         toast.success("Category updated successfully");
         CategoryService.getAll()
           .then((e) => {
-            dispatch(setCategory(e));
+            dispatch(setCategory(e.data));
             router.push("/dashboard/admin/categories");
           })
           .catch((err) => {

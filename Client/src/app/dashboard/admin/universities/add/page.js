@@ -2,6 +2,7 @@
 
 import PageHeader from "@/components/OwnerComponents/PageHeader";
 import UniversityService from "@/lib/services/universityService";
+import { setUniversity } from "@/store/Slices/universitySlice";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -24,6 +25,7 @@ const Page = () => {
       .then((res) => {
         toast.success("University added successfully");
         UniversityService.getAll().then((res) => {
+          dispatch(setUniversity(res.data));
           router.push("/dashboard/admin/universities");
         });
       })

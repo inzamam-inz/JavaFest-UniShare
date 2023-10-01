@@ -2,18 +2,21 @@ package com.unishare.backend.service;
 
 import com.unishare.backend.DTO.Request.ProductRequest;
 import com.unishare.backend.DTO.Response.ProductResponse;
+import com.unishare.backend.DTO.SpecialResponse.PageResponse;
 import com.unishare.backend.exceptionHandlers.CategoryNotFoundException;
 import com.unishare.backend.exceptionHandlers.ErrorMessageException;
 import com.unishare.backend.exceptionHandlers.ProductNotFoundException;
 import com.unishare.backend.exceptionHandlers.UserNotFoundException;
-import com.unishare.backend.model.Booking;
-import com.unishare.backend.model.Category;
-import com.unishare.backend.model.Product;
-import com.unishare.backend.model.User;
+import com.unishare.backend.model.*;
 import com.unishare.backend.repository.BookingRepository;
 import com.unishare.backend.repository.CategoryRepository;
 import com.unishare.backend.repository.ProductRepository;
 import com.unishare.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,27 +27,40 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CloudinaryImageService cloudinaryImageService;
     private final UserService userService;
+    private final BookingRepository bookingRepository;
 
-    public ProductService(ProductRepository productRepository, UserRepository userRepository,
-                          CategoryRepository categoryRepository, CloudinaryImageService cloudinaryImageService, UserService userService) {
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-        this.cloudinaryImageService = cloudinaryImageService;
-        this.userService = userService;
+    @Cacheable("product-all")
+    public PageResponse<List<ProductResponse>> getAllProducts(int page, int size) {
+        if (size == Integer.MAX_VALUE) page = 0;
+        Page<Product> pageResponse = productRepository.getProductsPage(PageRequest.of(page, size));
+
+        PageResponse<List<ProductResponse>> pageResponses = new PageResponse<>();
+//        List<ProductResponse> products = pageResponse.getContent().stream()
+//                .filter(product -> (!product.getIsRestricted() || product.getIsRestricted() == null))
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+        // all products are shown
+        List<ProductResponse> products = pageResponse.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+
+        pageResponses.setData(products);
+        pageResponses.setTotalPages(pageResponse.getTotalPages());
+        pageResponses.setTotalElements(pageResponse.getTotalElements());
+        pageResponses.setCurrentPage(pageResponse.getNumber());
+        pageResponses.setCurrentElements(pageResponse.getNumberOfElements());
+        return pageResponses;
     }
 
-    public List<ProductResponse> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        return products.stream().map(this::convertToResponse).collect(Collectors.toList());
-    }
-
+    @Cacheable("product-#id")
     public ProductResponse getProductById(Long id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()) {
@@ -53,49 +69,7 @@ public class ProductService {
         throw new ProductNotFoundException("Product not found with ID: " + id);
     }
 
-//    public ProductResponse createProduct(ProductRequest productRequest) {
-//        Product product = new Product();
-//        product.setName(productRequest.getName());
-//        product.setDescription(productRequest.getDescription());
-//        product.setBasePrice(productRequest.getBasePrice());
-//        product.setStatus(productRequest.getStatus());
-//
-//        User owner = userRepository.findById(productRequest.getOwnerId())
-//                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
-//        product.setOwner(owner);
-//
-//        Category category = categoryRepository.findById(productRequest.getCategoryId())
-//                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
-//        product.setCategory(category);
-//
-//        product = productRepository.save(product);
-//        return convertToResponse(product);
-//    }
-
-//    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
-//        Optional<Product> productOptional = productRepository.findById(id);
-//        if (productOptional.isPresent()) {
-//            Product product = productOptional.get();
-//            product.setName(productRequest.getName());
-//            product.setDescription(productRequest.getDescription());
-//            product.setBasePrice(productRequest.getBasePrice());
-//            product.setPerDayPrice(productRequest.getPerDayPrice());
-//            product.setStatus(productRequest.getStatus());
-//
-//            User owner = userRepository.findById(productRequest.getOwnerId())
-//                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + productRequest.getOwnerId()));
-//            product.setOwner(owner);
-//
-//            Category category = categoryRepository.findById(productRequest.getCategoryId())
-//                    .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productRequest.getCategoryId()));
-//            product.setCategory(category);
-//
-//            product = productRepository.save(product);
-//            return convertToResponse(product);
-//        }
-//        throw new ProductNotFoundException("Product not found with ID: " + id);
-//    }
-
+    @CacheEvict(value = {"product-#id", "product-all"}, allEntries = true)
     public void deleteProduct(Long id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()) {
@@ -116,18 +90,24 @@ public class ProductService {
     }
 
     private Double getRating(Product product) {
-        List<Booking> bookings = product.getBookings();
+        List<Booking> bookings = bookingRepository.findAllByProductId(product.getId());
         Double totalRating = 0.0;
+        Integer ratingCount = 0;
         for (Booking booking : bookings) {
             if (Objects.nonNull(booking.getReview()) && Objects.nonNull(booking.getReview().getRating())) {
                 totalRating += booking.getReview().getRating();
+                ratingCount++;
             }
         }
-        return totalRating / bookings.size();
+
+        if (ratingCount == 0) {
+            return 0.0;
+        }
+        return totalRating / ratingCount;
     }
 
     private Integer getRatingCount(Product product) {
-        List<Booking> bookings = product.getBookings();
+        List<Booking> bookings = bookingRepository.findAllByProductId(product.getId());
         Integer ratingCount = 0;
         for (Booking booking : bookings) {
             if (Objects.nonNull(booking.getReview()) && Objects.nonNull(booking.getReview().getRating())) {
@@ -138,7 +118,7 @@ public class ProductService {
     }
 
     private ProductResponse convertToResponseHelp(Product product) {
-        List<Long> bookingIds = product.getBookings().stream()
+        List<Long> bookingIds = bookingRepository.findAllByProductId(product.getId()).stream()
                 .map(Booking::getId)
                 .collect(Collectors.toList());
 
@@ -159,9 +139,8 @@ public class ProductService {
         return response;
     }
 
-
     private ProductResponse convertToResponse(Product product) {
-        List<Long> bookingIds = product.getBookings().stream()
+        List<Long> bookingIds = bookingRepository.findAllByProductId(product.getId()).stream()
                 .map(Booking::getId)
                 .collect(Collectors.toList());
 
@@ -174,7 +153,7 @@ public class ProductService {
     }
 
     private ProductResponse convertToResponse(Product product, int dayCount) {
-        List<Long> bookingIds = product.getBookings().stream()
+        List<Long> bookingIds = bookingRepository.findAllByProductId(product.getId()).stream()
                 .map(Booking::getId)
                 .collect(Collectors.toList());
 
@@ -186,6 +165,8 @@ public class ProductService {
         return response;
     }
 
+
+    @CacheEvict(value = {"product-#id", "product-all"}, allEntries = true)
     public ProductResponse createProductWithImage(List<MultipartFile> images, String name, String description, Double marketPrice, Double price, Double perDayPrice, Long categoryId, String token) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ErrorMessageException("Category not found with ID: " + categoryId));
@@ -200,6 +181,7 @@ public class ProductService {
         product.setStatus("Available");
         product.setOwner(owner);
         product.setCategory(category);
+        product.setIsRestricted(false);
 
         String imageUrl1 = cloudinaryImageService.getUploadedImageUrl(images.get(0));
         product.setImage1(imageUrl1);
@@ -300,5 +282,44 @@ public class ProductService {
         return products.stream()
                 .sorted(Comparator.comparingDouble(ProductResponse::getRating).reversed())
                 .collect(Collectors.toList());
+    }
+
+    private boolean canBeRestricted(Product product) {
+        List<Booking> bookings = bookingRepository.findAllByProductId(product.getId());
+        for (Booking booking : bookings) {
+            if (booking.getStatus().equals(BookingStatus.LENT) ||
+                    booking.getStatus().equals(BookingStatus.ACCEPTED)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Boolean restrictProduct(Long id) {
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            if (!canBeRestricted(productOptional.get())) {
+                throw new ErrorMessageException("Product cannot be restricted because it is currently being lent or booked");
+            }
+            Product product = productOptional.get();
+            product.setStatus("Restricted");
+            product.setIsRestricted(true);
+            productRepository.save(product);
+            return true;
+        } else {
+            throw new ProductNotFoundException("Product not found with ID: " + id);
+        }
+    }
+
+    // restricted user's product
+    public void restrictProductOfUser(Long id) {
+        List<Product> products = productRepository.findAllByOwnerId(id);
+        for (Product product : products) {
+            if (canBeRestricted(product)) {
+                product.setStatus("Restricted");
+                product.setIsRestricted(true);
+                productRepository.save(product);
+            }
+        }
     }
 }

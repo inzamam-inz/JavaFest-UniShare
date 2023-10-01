@@ -13,41 +13,76 @@ const Page = () => {
   const { category } = useSelector((state) => state.category);
   const router = useRouter();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(10);
-  // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = category?.slice(indexOfFirstPost, indexOfLastPost);
-
-  const paginateFront = () => {
-    const totalPages = Math.ceil(category?.length / postsPerPage);
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  const [pagination, setPagination] = useState({
+    currentPage: 0,
+    postsPerPage: 5,
+    currentElements: 0,
+    totalPosts: 0,
+  });
 
   const paginateBack = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  useEffect(() => {
-    if (!category) {
-      setLoading(true);
-      CategoryService.getAll()
+    if (pagination.currentPage <= 0) return;
+    else
+      CategoryService.getPaginated(
+        pagination.currentPage - 1,
+        pagination.postsPerPage
+      )
         .then((res) => {
-          console.log(res);
-          dispatch(setCategory(res));
-          setLoading(false);
+          dispatch(setCategory(res.data));
+          setPagination({
+            ...pagination,
+            totalPosts: res.totalElements,
+            currentPage: res.currentPage,
+            currentElements: res.currentElements,
+          });
         })
         .catch((err) => {
           console.log(err);
         });
-    }
-  }, [category, dispatch]);
+  };
+
+  const paginateFront = () => {
+    const totalPages = Math.ceil(
+      pagination.totalPosts / pagination.postsPerPage
+    );
+    if (pagination.currentPage >= totalPages - 1) return;
+    else
+      CategoryService.getPaginated(
+        pagination.currentPage + 1,
+        pagination.postsPerPage
+      )
+        .then((res) => {
+          dispatch(setCategory(res.data));
+          setPagination({
+            ...pagination,
+            totalPosts: res.totalElements,
+            currentPage: res.currentPage,
+            currentElements: res.currentElements,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  };
+
+  useEffect(() => {
+    CategoryService.getPaginated(
+      pagination.currentPage,
+      pagination.postsPerPage
+    )
+      .then((res) => {
+        dispatch(setCategory(res.data));
+        setPagination({
+          ...pagination,
+          totalPosts: res.totalElements,
+          currentPage: res.currentPage,
+          currentElements: res.currentElements,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <div>
@@ -90,13 +125,21 @@ const Page = () => {
               CategoryService.delete(id)
                 .then((res) => {
                   toast.success("Category deleted successfully");
-                  CategoryService.getAll()
-                    .then((e) => {
-                      dispatch(setCategory(e));
+                  CategoryService.getPaginated(
+                    pagination.currentPage,
+                    pagination.postsPerPage
+                  )
+                    .then((res) => {
+                      dispatch(setCategory(res.data));
+                      setPagination({
+                        ...pagination,
+                        totalPosts: res.totalElements,
+                        currentPage: res.currentPage,
+                        currentElements: res.currentElements,
+                      });
                     })
                     .catch((err) => {
                       console.log(err);
-                      toast.error("Something went wrong");
                     });
                 })
                 .catch((err) => {
@@ -108,11 +151,15 @@ const Page = () => {
         ]}
       />
       <Pagination
-        postsPerPage={postsPerPage}
-        totalPosts={category?.length}
+        startIndex={pagination.currentPage * pagination.postsPerPage + 1}
+        endIndex={
+          pagination.currentPage * pagination.postsPerPage +
+          pagination.currentElements
+        }
+        postsPerPage={pagination.postsPerPage}
+        totalPosts={pagination.totalPosts}
         paginateBack={paginateBack}
         paginateFront={paginateFront}
-        currentPage={currentPage}
       />
     </div>
   );

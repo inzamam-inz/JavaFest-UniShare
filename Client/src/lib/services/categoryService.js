@@ -19,5 +19,8 @@ const CategoryService = {
   delete: (id) => {
     return api.deleteAsync(`/categories/${id}`);
   },
+  getPaginated: (page, size) => {
+    return api.getAsync(`/categories?page=${page}&size=${size}`);
+  },
 };
 export default CategoryService;

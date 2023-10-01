@@ -24,7 +24,15 @@ const UserService = {
   delete: (id) => {
     return api.deleteAsync(`/users/${id}`);
   },
-
+  getPaginated: (page, size) => {
+    return api.getAsync(`/users?page=${page}&size=${size}`);
+  },
+  block: (id) => {
+    return api.putAsync(`/users/block-user/${id}`);
+  },
+  autoVerify: () => {
+    return api.postAsync(`/auth/verify-me`);
+  },
 };
 
 export default UserService;
