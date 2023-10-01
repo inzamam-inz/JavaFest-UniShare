@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,11 +58,27 @@ public class UserController {
         }
     }
 
-    @PutMapping("/profile-update")
-    public ResponseEntity<ApiResponse<UserResponse>> profileUpdate(@RequestBody UserUpdateRequest userUpdateRequest) {
+    @PutMapping("/profile-pic-update")
+    public ResponseEntity<ApiResponse<String>> profilePicUpdate(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("profilePicture") MultipartFile profilePicture
+    ) {
         try {
-            UserResponse updatedUser = userService.userProfileUpdate(userUpdateRequest);
-            return ResponseEntity.ok(new ApiResponse<>(updatedUser, null));
+            userService.userProfilePictureUpdate(token, profilePicture);
+            return ResponseEntity.ok(new ApiResponse<>("Successfully updated.", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("/id-card-update")
+    public ResponseEntity<ApiResponse<String>> idCardUpdate(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("profilePicture") MultipartFile idCard
+    ) {
+        try {
+            userService.userProfilePictureUpdate(token, idCard);
+            return ResponseEntity.ok(new ApiResponse<>("Successfully updated.", null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(null, e.getMessage()));
         }

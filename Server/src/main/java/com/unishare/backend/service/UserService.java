@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class UserService {
     private final JwtService jwtService;
     private final ProductRepository productRepository;
     private final BookingRepository bookingRepository;
+    private final CloudinaryImageService cloudinaryImageService;
 
 
 
@@ -154,6 +156,20 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ErrorMessageException("User not found with token."));
         return user.getId();
+    }
+
+    public void userProfilePictureUpdate(String token, MultipartFile profilePicture) {
+        User user = getUserByToken(token);
+        String profilePictureUrl = cloudinaryImageService.getUploadedImageUrl(profilePicture);
+        user.setProfilePicture(profilePictureUrl);
+        userRepository.save(user);
+    }
+
+    public void userIdCardUpdate(String token, MultipartFile idcard) {
+        User user = getUserByToken(token);
+        String idcardurl = cloudinaryImageService.getUploadedImageUrl(idcard);
+        user.setIdCard(idcardurl);
+        userRepository.save(user);
     }
 
     // Add more service methods here as needed
